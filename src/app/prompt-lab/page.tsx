@@ -2,23 +2,34 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wand2, ArrowDown, AlertCircle, CheckCircle, ChevronRight } from "lucide-react";
+import {
+  Wand2, ArrowDown, AlertCircle, CheckCircle, ChevronRight,
+  Copy, Check, BarChart2, BookOpen, AlertTriangle
+} from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import LoadingDots from "@/components/ui/LoadingDots";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PromptTier {
   text: string;
   issues?: string[];
   improvements?: string[];
-  whyExcellent?: string[];
+  whyProfessional?: string[];
+  quality?: string;
+  mistakes?: string[];
+  bestPractices?: string[];
 }
 
 interface PromptResult {
   weak: PromptTier;
   better: PromptTier;
-  excellent: PromptTier;
+  professional?: PromptTier;
+  excellent?: PromptTier;  // backward compat with old API response
   keyLessons: string[];
 }
+
+// ─── Config ───────────────────────────────────────────────────────────────────
 
 const TIER_CONFIG = [
   {
@@ -31,6 +42,8 @@ const TIER_CONFIG = [
     reasonsLabel: "Issues",
     reasonsKey: "issues" as const,
     reasonsColor: "text-red-400",
+    mistakesKey: "mistakes" as const,
+    qualityColor: "text-red-400",
   },
   {
     key: "better" as const,
@@ -42,17 +55,21 @@ const TIER_CONFIG = [
     reasonsLabel: "Improvements",
     reasonsKey: "improvements" as const,
     reasonsColor: "text-yellow-400",
+    bestPracticesKey: "bestPractices" as const,
+    qualityColor: "text-yellow-400",
   },
   {
-    key: "excellent" as const,
-    label: "Excellent Prompt",
+    key: "professional" as const,
+    label: "Professional Prompt",
     emoji: "✅",
     color: "border-green-500/30 bg-green-500/5",
     headerColor: "text-green-400",
     badgeColor: "bg-green-500/15 border-green-500/30 text-green-400",
-    reasonsLabel: "Why Excellent",
-    reasonsKey: "whyExcellent" as const,
+    reasonsLabel: "Why Professional",
+    reasonsKey: "whyProfessional" as const,
     reasonsColor: "text-green-400",
+    bestPracticesKey: "bestPractices" as const,
+    qualityColor: "text-green-400",
   },
 ];
 
@@ -62,7 +79,31 @@ const EXAMPLE_PROMPTS = [
   "Help with Python",
   "Explain neural networks",
   "Debug my function",
+  "Create a REST API",
 ];
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handle = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
+  return (
+    <button
+      onClick={handle}
+      className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+      title="Copy prompt"
+    >
+      {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? "Copied!" : "Copy"}
+    </button>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function PromptLabPage() {
   const [prompt, setPrompt] = useState("");
@@ -121,6 +162,7 @@ export default function PromptLabPage() {
             rows={3}
             className="w-full bg-[#0d1117] border border-white/10 rounded-xl p-4 text-sm text-white leading-relaxed resize-none focus:outline-none focus:border-pink-500/40 transition-colors placeholder-text-muted/50"
             placeholder="e.g. Write some code for me"
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) improve(); }}
           />
 
           <div className="flex flex-wrap gap-2">
@@ -143,11 +185,10 @@ export default function PromptLabPage() {
             {loading ? (
               <LoadingDots label="Analyzing" />
             ) : (
-              <>
-                <Wand2 className="w-4 h-4" /> Analyze & Improve
-              </>
+              <><Wand2 className="w-4 h-4" /> Analyze &amp; Improve</>
             )}
           </button>
+          <p className="text-xs text-text-muted">Tip: Press Ctrl+Enter to submit</p>
         </motion.div>
 
         {error && (
@@ -164,13 +205,22 @@ export default function PromptLabPage() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
             >
-              <h2 className="font-display font-bold text-2xl text-white">
-                Prompt Analysis
-              </h2>
+              <h2 className="font-display font-bold text-2xl text-white">Prompt Analysis</h2>
 
               {TIER_CONFIG.map((tier, idx) => {
-                const tierData = result[tier.key];
-                const reasons = tierData[tier.reasonsKey] ?? [];
+                // Handle both old 'excellent' key and new 'professional' key
+                const tierData: PromptTier | undefined =
+                  result[tier.key as keyof PromptResult] as PromptTier | undefined
+                  ?? (result.excellent ?? result.professional);
+                if (!tierData) return null;
+
+                const reasons = (tierData[tier.reasonsKey as keyof PromptTier] as string[] | undefined) ?? [];
+                const mistakes = (tierData as PromptTier).mistakes ?? [];
+                const bestPractices =
+                  "bestPracticesKey" in tier
+                    ? ((tierData as PromptTier).bestPractices ?? [])
+                    : [];
+                const quality = tierData.quality;
 
                 return (
                   <motion.div
@@ -179,7 +229,6 @@ export default function PromptLabPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.15 }}
                   >
-                    {/* Arrow between tiers */}
                     {idx > 0 && (
                       <div className="flex justify-center my-2">
                         <div className="flex flex-col items-center gap-1">
@@ -190,28 +239,42 @@ export default function PromptLabPage() {
                     )}
 
                     <div className={`glass-panel rounded-2xl p-6 border ${tier.color}`}>
-                      <div className="flex items-center justify-between mb-4">
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">{tier.emoji}</span>
                           <h3 className={`font-display font-semibold text-lg ${tier.headerColor}`}>
                             {tier.label}
                           </h3>
                         </div>
-                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${tier.badgeColor}`}>
-                          {tier.key.toUpperCase()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {quality && (
+                            <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${tier.badgeColor}`}>
+                              <BarChart2 className="w-3.5 h-3.5" />
+                              {quality}
+                            </div>
+                          )}
+                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${tier.badgeColor}`}>
+                            {tier.key.toUpperCase()}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Prompt text */}
-                      <div className="bg-[#0d1117] rounded-xl p-4 mb-4 font-mono text-sm text-white/90 leading-relaxed border border-white/5">
-                        &ldquo;{tierData.text}&rdquo;
+                      {/* Prompt text + Copy */}
+                      <div className="relative mb-4">
+                        <div className="bg-[#0d1117] rounded-xl p-4 pr-24 font-mono text-sm text-white/90 leading-relaxed border border-white/5">
+                          &ldquo;{tierData.text}&rdquo;
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <CopyButton text={tierData.text} />
+                        </div>
                       </div>
 
-                      {/* Reasons */}
+                      {/* Reasons (Issues / Improvements / Why Professional) */}
                       {reasons.length > 0 && (
-                        <div>
-                          <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${tier.reasonsColor}`}>
-                            {tier.reasonsLabel}
+                        <div className="mb-4">
+                          <p className={`text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${tier.reasonsColor}`}>
+                            <ChevronRight className="w-3.5 h-3.5" /> {tier.reasonsLabel}
                           </p>
                           <ul className="space-y-1.5">
                             {reasons.map((reason: string, i: number) => (
@@ -223,13 +286,47 @@ export default function PromptLabPage() {
                           </ul>
                         </div>
                       )}
+
+                      {/* Common Mistakes (weak tier) */}
+                      {mistakes.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5 text-orange-400">
+                            <AlertTriangle className="w-3.5 h-3.5" /> Common Mistakes
+                          </p>
+                          <ul className="space-y-1.5">
+                            {mistakes.map((m: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2 text-sm text-text-muted">
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-orange-400" />
+                                {m}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Best Practices (better / professional) */}
+                      {bestPractices.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5 text-accent-primary">
+                            <BookOpen className="w-3.5 h-3.5" /> Best Practices Used
+                          </p>
+                          <ul className="space-y-1.5">
+                            {bestPractices.map((bp: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2 text-sm text-text-muted">
+                                <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-accent-primary" />
+                                {bp}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
               })}
 
               {/* Key Lessons */}
-              {result.keyLessons.length > 0 && (
+              {result.keyLessons?.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -264,14 +361,37 @@ export default function PromptLabPage() {
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             {[
-              { emoji: "❌", title: "Weak Prompt", desc: "Vague, missing context, no format guidance. Gets unpredictable results." },
-              { emoji: "⚡", title: "Better Prompt", desc: "Adds context, specifies requirements. Results are more consistent." },
-              { emoji: "✅", title: "Excellent Prompt", desc: "Role, context, constraints, examples, output format. Gets exactly what you need." },
+              {
+                emoji: "❌",
+                title: "Weak Prompt",
+                desc: "Vague, missing context, no format guidance. Gets unpredictable results.",
+                examples: ["Write code", "Help me", "Fix this"],
+              },
+              {
+                emoji: "⚡",
+                title: "Better Prompt",
+                desc: "Adds context, specifies requirements. Results are more consistent.",
+                examples: ["Add context", "Specify language", "State goal"],
+              },
+              {
+                emoji: "✅",
+                title: "Professional Prompt",
+                desc: "Role, context, constraints, examples, output format. Gets exactly what you need.",
+                examples: ["Define role", "Set constraints", "Specify format"],
+              },
             ].map((tier, i) => (
-              <div key={i} className="glass-panel rounded-2xl p-5 text-center space-y-2">
+              <div key={i} className="glass-panel rounded-2xl p-5 space-y-3">
                 <span className="text-3xl">{tier.emoji}</span>
                 <h3 className="font-semibold text-white">{tier.title}</h3>
                 <p className="text-text-muted text-xs leading-relaxed">{tier.desc}</p>
+                <div className="flex flex-col gap-1.5 pt-1">
+                  {tier.examples.map((ex, j) => (
+                    <div key={j} className="flex items-center gap-2 text-xs text-text-muted">
+                      <ChevronRight className="w-3 h-3 text-accent-primary shrink-0" />
+                      {ex}
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </motion.div>

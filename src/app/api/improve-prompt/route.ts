@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     const model = getModel();
 
-    const analysisPrompt = `You are an expert prompt engineer. Analyze this user prompt and rewrite it in three quality tiers.
+    const analysisPrompt = `You are an expert prompt engineer teaching students how to write better AI prompts. Analyze this user prompt and rewrite it in three quality tiers.
 
 User's prompt: "${prompt}"
 
@@ -47,15 +47,21 @@ Return ONLY valid JSON (no markdown, no extra text) in this exact format:
 {
   "weak": {
     "text": "The original weak/vague version of the prompt (similar to what user provided, possibly slightly simplified to show weakness)",
-    "issues": ["Issue 1 with this prompt", "Issue 2", "Issue 3"]
+    "issues": ["Issue 1 with this prompt", "Issue 2", "Issue 3"],
+    "quality": "Low — Unpredictable results",
+    "mistakes": ["Common mistake made here 1", "Common mistake 2"]
   },
   "better": {
     "text": "An improved version with more context and specificity",
-    "improvements": ["What was improved 1", "What was improved 2", "What was improved 3"]
+    "improvements": ["What was improved 1", "What was improved 2", "What was improved 3"],
+    "quality": "Medium — Consistent but improvable",
+    "bestPractices": ["Best practice used 1", "Best practice 2"]
   },
-  "excellent": {
-    "text": "An excellent, highly specific, structured prompt with role, context, constraints, and expected format",
-    "whyExcellent": ["Why this is excellent 1", "Why this is excellent 2", "Why this is excellent 3"]
+  "professional": {
+    "text": "A professional, highly specific, structured prompt with role, context, constraints, format, and examples",
+    "whyProfessional": ["Why this is professional 1", "Why 2", "Why 3"],
+    "quality": "High — Expert-level output guaranteed",
+    "bestPractices": ["Advanced technique used 1", "Technique 2", "Technique 3"]
   },
   "keyLessons": ["General lesson about prompt engineering 1", "Lesson 2", "Lesson 3"]
 }`;

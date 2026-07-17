@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Compass, CheckCircle, XCircle, Minus, ArrowRight,
-  ArrowLeft, Star, DollarSign, Zap, Globe, BarChart2,
-  RefreshCw, ChevronRight
+  Compass, CheckCircle, XCircle, ArrowRight, ArrowLeft,
+  Star, DollarSign, Zap, Globe, BarChart2, RefreshCw,
+  ChevronRight, Trophy, Lightbulb
 } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Question {
   id: string;
@@ -28,262 +28,279 @@ interface AITool {
   contextWindow: string;
   strengths: string[];
   weaknesses: string[];
-  bestFor: string[];
-  supportsLocal: boolean;
-  supportsImages: boolean;
-  supportsLongContext: boolean;
+  bestUseCases: string[];
   speed: "fast" | "medium" | "slow";
-  categories: string[];
-  languages: string[];
-  budgetTier: "free" | "low" | "medium" | "high";
+  supportsImages: boolean;
+  supportsIDE: boolean;
+  budgetTier: "free" | "low" | "medium";
   useCases: string[];
   website: string;
+  studentTip: string;
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Student-focused Questions ────────────────────────────────────────────────
 
 const QUESTIONS: Question[] = [
   {
     id: "goal",
-    text: "What are you primarily trying to do?",
+    text: "What do you mainly want help with?",
     subtitle: "Select all that apply",
     multi: true,
     options: [
-      { label: "Write & generate code", value: "code", icon: "💻" },
-      { label: "Research & analysis", value: "research", icon: "🔍" },
-      { label: "Writing & content", value: "writing", icon: "✍️" },
-      { label: "Learning & studying", value: "learning", icon: "📚" },
-      { label: "Debugging & fixing bugs", value: "debugging", icon: "🐛" },
-      { label: "Presentations & documents", value: "presentation", icon: "📊" },
-    ],
-  },
-  {
-    id: "language",
-    text: "Which programming language do you use most?",
-    options: [
-      { label: "Python", value: "python", icon: "🐍" },
-      { label: "JavaScript / TypeScript", value: "javascript", icon: "🟨" },
-      { label: "Java / Kotlin", value: "java", icon: "☕" },
-      { label: "C / C++", value: "cpp", icon: "⚙️" },
-      { label: "Go / Rust", value: "systems", icon: "🦀" },
-      { label: "Multiple / Other", value: "multiple", icon: "🌐" },
+      { label: "Writing & debugging code",    value: "code",         icon: "💻" },
+      { label: "Understanding concepts",       value: "learning",     icon: "📚" },
+      { label: "Homework & assignments",       value: "homework",     icon: "📝" },
+      { label: "Research & reports",           value: "research",     icon: "🔍" },
+      { label: "Building projects",            value: "projects",     icon: "🚀" },
+      { label: "Interview / exam prep",        value: "interview",    icon: "🎯" },
     ],
   },
   {
     id: "experience",
-    text: "What is your experience level?",
+    text: "How experienced are you with programming?",
     options: [
-      { label: "Beginner — still learning", value: "beginner", icon: "🌱" },
-      { label: "Intermediate — comfortable with basics", value: "intermediate", icon: "🔧" },
-      { label: "Advanced — professional developer", value: "advanced", icon: "🚀" },
-      { label: "Expert — senior engineer / researcher", value: "expert", icon: "🎯" },
+      { label: "Beginner — learning to code",     value: "beginner",     icon: "🌱" },
+      { label: "Student — taking CS courses",     value: "student",      icon: "🎓" },
+      { label: "Intermediate — side projects",    value: "intermediate", icon: "🔧" },
+      { label: "Advanced — internships / jobs",   value: "advanced",     icon: "💼" },
+    ],
+  },
+  {
+    id: "editor",
+    text: "Do you want AI directly inside your code editor?",
+    subtitle: "IDE integration (VS Code, JetBrains, etc.)",
+    options: [
+      { label: "Yes! I live in my IDE",                value: "yes",       icon: "⌨️" },
+      { label: "Sometimes, but not required",          value: "sometimes", icon: "🤷" },
+      { label: "No, I prefer a chat interface",        value: "no",        icon: "💬" },
     ],
   },
   {
     id: "budget",
     text: "What is your monthly budget for AI tools?",
     options: [
-      { label: "Free only", value: "free", icon: "🆓" },
-      { label: "Up to $10/mo", value: "low", icon: "💰" },
-      { label: "$10–$25/mo", value: "medium", icon: "💳" },
-      { label: "$25+/mo or enterprise", value: "high", icon: "🏢" },
+      { label: "Free only — I'm a student! 🆓",     value: "free",   icon: "🆓" },
+      { label: "Up to ₹800 / $10 per month",        value: "low",    icon: "💰" },
+      { label: "₹800–₹2000 / $10–$25 per month",   value: "medium", icon: "💳" },
     ],
   },
   {
-    id: "local",
-    text: "Do you need a local / offline AI?",
-    subtitle: "Important for privacy-sensitive environments",
+    id: "task_type",
+    text: "What type of tasks do you work on most?",
     options: [
-      { label: "Yes, local is required", value: "yes", icon: "🔒" },
-      { label: "Preferred but not required", value: "preferred", icon: "🤔" },
-      { label: "No, cloud is fine", value: "no", icon: "☁️" },
+      { label: "Data structures & algorithms",     value: "dsa",        icon: "🌳" },
+      { label: "Web / app development",            value: "webdev",     icon: "🌐" },
+      { label: "Machine learning / AI",            value: "ml",         icon: "🤖" },
+      { label: "General CS assignments",           value: "general",    icon: "📐" },
+      { label: "Theory & concepts",                value: "theory",     icon: "📖" },
     ],
   },
   {
-    id: "context",
-    text: "Do you need long context windows?",
-    subtitle: "For analyzing large codebases, long documents, etc.",
+    id: "style",
+    text: "Which learning style fits you best?",
     options: [
-      { label: "Yes, I work with large files", value: "yes", icon: "📄" },
-      { label: "Sometimes", value: "sometimes", icon: "📋" },
-      { label: "No, short conversations only", value: "no", icon: "💬" },
-    ],
-  },
-  {
-    id: "images",
-    text: "Do you need image or multimodal support?",
-    subtitle: "Sharing screenshots, diagrams, UI mockups with AI",
-    options: [
-      { label: "Yes, I share images often", value: "yes", icon: "🖼️" },
-      { label: "Occasionally", value: "sometimes", icon: "📷" },
-      { label: "No, text only", value: "no", icon: "💬" },
-    ],
-  },
-  {
-    id: "speed",
-    text: "How important is response speed?",
-    options: [
-      { label: "Critical — I need instant responses", value: "critical", icon: "⚡" },
-      { label: "Important but quality matters more", value: "balanced", icon: "⚖️" },
-      { label: "Quality over speed always", value: "quality", icon: "🎯" },
+      { label: "Explain everything step by step",  value: "detailed",  icon: "🪜" },
+      { label: "Give me the code, I'll figure it out", value: "code",  icon: "⚡" },
+      { label: "I want to discuss ideas & explore", value: "explore",  icon: "🗣️" },
+      { label: "Point me to resources & docs",     value: "resources", icon: "📎" },
     ],
   },
 ];
+
+// ─── AI Tools (5 core student tools) ─────────────────────────────────────────
 
 const AI_TOOLS: AITool[] = [
   {
     name: "ChatGPT (GPT-4o)",
     logo: "🤖",
-    tagline: "OpenAI's flagship — most versatile general-purpose AI",
+    tagline: "OpenAI's flagship — most popular and versatile AI assistant",
     pricing: "Free / $20/mo Plus",
-    pricingDetail: "Free tier with GPT-4o mini; $20/mo for GPT-4o",
+    pricingDetail: "Free tier with GPT-4o mini; $20/mo for full GPT-4o + plugins",
     contextWindow: "128K tokens",
-    strengths: ["Extremely versatile across all tasks", "Strong reasoning & analysis", "DALL-E image generation", "Web browsing", "Plugin ecosystem", "Excellent for writing"],
-    weaknesses: ["Rate limits on free tier", "Can hallucinate confidently", "No native IDE integration", "Privacy: data used for training (default)"],
-    bestFor: ["General coding help", "Writing & content creation", "Research & analysis", "Brainstorming", "Image generation"],
-    supportsLocal: false,
-    supportsImages: true,
-    supportsLongContext: true,
+    strengths: [
+      "Best overall versatility for any task",
+      "Excellent code explanation for beginners",
+      "Strong at DSA problems and walkthroughs",
+      "Image upload — analyze diagrams and screenshots",
+      "Huge community with study tips",
+      "Web browsing to find latest docs",
+    ],
+    weaknesses: [
+      "Free tier has rate limits and slower model",
+      "Can hallucinate confident wrong answers",
+      "No native IDE integration",
+      "Data privacy concerns (default training)",
+    ],
+    bestUseCases: [
+      "Learning new programming concepts with clear explanations",
+      "Debugging code with step-by-step analysis",
+      "Solving DSA problems with time/space complexity breakdown",
+      "Writing essays, research summaries, and lab reports",
+      "Interview preparation — mock interviews and problem solving",
+    ],
     speed: "fast",
-    categories: ["general", "code", "writing", "research", "images"],
-    languages: ["python", "javascript", "java", "cpp", "systems", "multiple"],
+    supportsImages: true,
+    supportsIDE: false,
     budgetTier: "free",
-    useCases: ["code", "writing", "research", "learning", "presentation"],
+    useCases: ["code", "learning", "homework", "research", "interview", "dsa"],
     website: "https://chat.openai.com",
+    studentTip: "Use the 'Explain it to me like I'm a beginner' prompt for any concept you don't understand.",
   },
   {
     name: "Claude (Sonnet 4)",
     logo: "🧠",
-    tagline: "Anthropic's safety-focused AI — best for complex reasoning",
+    tagline: "Anthropic's thoughtful AI — best for detailed reasoning",
     pricing: "Free / $20/mo Pro",
-    pricingDetail: "Free with Claude 3 Haiku; $20/mo for Sonnet & Opus",
+    pricingDetail: "Free tier with Claude 3.5 Haiku; $20/mo for Sonnet and Opus",
     contextWindow: "200K tokens",
-    strengths: ["Best-in-class reasoning", "Very long 200K context", "Thoughtful & nuanced responses", "Strong code generation", "Low hallucination rate", "Excellent for senior engineers"],
-    weaknesses: ["Occasional over-caution on edge cases", "No image generation", "Less tool integrations", "Slower than GPT-4o"],
-    bestFor: ["Complex multi-file code analysis", "Long document review", "High-stakes code generation", "Research papers", "Architecture design"],
-    supportsLocal: false,
-    supportsImages: true,
-    supportsLongContext: true,
+    strengths: [
+      "Best reasoning and code explanation depth",
+      "200K context — analyze entire project files",
+      "Very low hallucination rate — trustworthy answers",
+      "Excellent for understanding complex theory",
+      "Great for reviewing and improving your code",
+      "No excessive safety refusals on academic topics",
+    ],
+    weaknesses: [
+      "Slightly slower response than ChatGPT",
+      "No image generation (only image reading)",
+      "Fewer integrations than OpenAI",
+      "Free tier limits usage",
+    ],
+    bestUseCases: [
+      "Understanding complex algorithms and data structures",
+      "Long document analysis — paste entire textbooks chapters",
+      "Code review and detailed improvement suggestions",
+      "Research papers and theory-heavy assignments",
+      "Architecture planning for semester projects",
+    ],
     speed: "medium",
-    categories: ["general", "code", "research"],
-    languages: ["python", "javascript", "java", "cpp", "systems", "multiple"],
+    supportsImages: true,
+    supportsIDE: false,
     budgetTier: "free",
-    useCases: ["code", "research", "debugging", "learning"],
+    useCases: ["code", "learning", "research", "projects", "theory"],
     website: "https://claude.ai",
+    studentTip: "Paste your entire assignment brief + your current attempt for the most targeted help.",
   },
   {
     name: "Gemini (1.5 Pro)",
     logo: "✨",
-    tagline: "Google's multimodal AI — biggest context window",
+    tagline: "Google's multimodal AI — great for students in Google ecosystem",
     pricing: "Free / $20/mo Advanced",
-    pricingDetail: "Free with Gemini 1.5 Flash; $20/mo for 1.5 Pro",
-    contextWindow: "1M tokens",
-    strengths: ["1M token context window", "Multimodal (text/image/video/audio)", "Google Workspace integration", "Fast inference", "Free tier very capable", "Powers this portal!"],
-    weaknesses: ["Less community adoption vs OpenAI", "Code generation can be inconsistent", "Less plugin ecosystem"],
-    bestFor: ["Multimodal tasks", "Very long document analysis", "Google Workspace", "Fast responses", "Educational content"],
-    supportsLocal: false,
-    supportsImages: true,
-    supportsLongContext: true,
+    pricingDetail: "Free with 1.5 Flash; Gemini Advanced $20/mo for 1.5 Pro and 1M context",
+    contextWindow: "1M tokens (Advanced)",
+    strengths: [
+      "1 million token context — entire codebases",
+      "Integrated with Google Docs, Sheets, and Gmail",
+      "Analyze images, diagrams, and YouTube videos",
+      "Free tier is very capable for students",
+      "Great for multimodal tasks (photos of handwritten notes)",
+      "Powers this AI portal you're using right now!",
+    ],
+    weaknesses: [
+      "Code quality sometimes less consistent than rivals",
+      "Smaller plugin/integration ecosystem",
+      "Less popular — fewer community resources",
+    ],
+    bestUseCases: [
+      "Analyzing handwritten notes or textbook photos",
+      "Working within Google Workspace (Docs, Sheets)",
+      "Processing very large documents or datasets",
+      "Multimodal projects (text + image analysis)",
+      "Fast, free chat for daily study questions",
+    ],
     speed: "fast",
-    categories: ["general", "code", "research", "images"],
-    languages: ["python", "javascript", "java", "cpp", "multiple"],
+    supportsImages: true,
+    supportsIDE: false,
     budgetTier: "free",
-    useCases: ["code", "research", "writing", "learning", "presentation"],
+    useCases: ["code", "learning", "homework", "research", "ml"],
     website: "https://gemini.google.com",
+    studentTip: "Use Gemini's NotebookLM (free) to summarize and quiz yourself on uploaded course materials.",
   },
   {
     name: "GitHub Copilot",
     logo: "🐙",
-    tagline: "AI pair programmer built into your IDE",
-    pricing: "$10/mo Individual",
-    pricingDetail: "$10/mo Individual; $19/mo Business; $39/mo Enterprise",
+    tagline: "AI pair programmer built into your IDE — free for students",
+    pricing: "Free for students via GitHub Education",
+    pricingDetail: "FREE for verified students via GitHub Education Pack; $10/mo otherwise",
     contextWindow: "~8K tokens",
-    strengths: ["Deep IDE integration (VS Code, JetBrains, vim)", "Context-aware inline completions", "GitHub PR summaries", "Multi-IDE support", "Copilot Chat for questions"],
-    weaknesses: ["Subscription required (no free tier)", "Privacy: code sent to cloud", "Limited context window", "Best in IDE, weak standalone"],
-    bestFor: ["Inline code autocomplete", "Boilerplate generation", "Refactoring suggestions", "Test generation in IDE"],
-    supportsLocal: false,
-    supportsImages: false,
-    supportsLongContext: false,
+    strengths: [
+      "FREE for students with GitHub Education Pack",
+      "Works inside VS Code, JetBrains, Vim, Neovim",
+      "Autocompletes code as you type in real-time",
+      "Understands your open files for context",
+      "Copilot Chat for asking questions in-editor",
+      "Great for boilerplate and repetitive code",
+    ],
+    weaknesses: [
+      "Requires GitHub Education verification",
+      "Smaller context than Claude or ChatGPT",
+      "Best in IDE, less useful as standalone chat",
+      "Code sent to cloud (privacy consideration)",
+    ],
+    bestUseCases: [
+      "Inline autocomplete while writing assignments",
+      "Generating boilerplate and repetitive code",
+      "Quick in-editor explanations without switching tabs",
+      "Test generation while coding",
+      "Learning by seeing AI complete your code",
+    ],
     speed: "fast",
-    categories: ["code", "ide"],
-    languages: ["python", "javascript", "java", "cpp", "systems", "multiple"],
-    budgetTier: "low",
-    useCases: ["code", "debugging"],
+    supportsImages: false,
+    supportsIDE: true,
+    budgetTier: "free",
+    useCases: ["code", "projects", "webdev", "dsa"],
     website: "https://github.com/features/copilot",
+    studentTip: "Apply for GitHub Education Pack at education.github.com for free Copilot access!",
   },
   {
     name: "Cursor",
     logo: "🖱️",
-    tagline: "AI-first code editor — full codebase context",
-    pricing: "Free / $20/mo Pro",
-    pricingDetail: "Free: 2000 completions/mo; $20/mo Pro: unlimited",
-    contextWindow: "~200K (with indexing)",
-    strengths: ["Full codebase context via indexing", "Agent mode for multi-file edits", "Natural language code edits", "Privacy mode (local processing)", "VSCode-compatible extension marketplace"],
-    weaknesses: ["Separate app from existing IDE", "Learning curve for new users", "Higher cost than Copilot", "Resource intensive"],
-    bestFor: ["Codebase-wide refactoring", "Feature implementation across files", "Complex bug fixes", "Legacy code understanding"],
-    supportsLocal: true,
-    supportsImages: false,
-    supportsLongContext: true,
+    tagline: "AI-first code editor — understands your entire project",
+    pricing: "Free (limited) / $20/mo Pro",
+    pricingDetail: "Free: 2000 completions, 50 chats/mo; Pro $20/mo unlimited",
+    contextWindow: "~200K (with codebase indexing)",
+    strengths: [
+      "Indexes your entire codebase for full context",
+      "Agent mode: implements features across multiple files",
+      "Based on VSCode — works with all extensions",
+      "Natural language code edits ('make this faster')",
+      "Best for complex semester project development",
+      "Privacy mode available for sensitive projects",
+    ],
+    weaknesses: [
+      "Free tier is limited (2000 completions/month)",
+      "Separate editor from VS Code (migration effort)",
+      "Resource-intensive on older machines",
+      "$20/mo is steep for students without GitHub EDU",
+    ],
+    bestUseCases: [
+      "Building full-stack semester or capstone projects",
+      "Multi-file code refactoring and feature implementation",
+      "Understanding large legacy codebases",
+      "Debugging complex, interconnected systems",
+      "Learning professional development workflows",
+    ],
     speed: "medium",
-    categories: ["code", "ide"],
-    languages: ["python", "javascript", "java", "cpp", "systems", "multiple"],
+    supportsImages: false,
+    supportsIDE: true,
     budgetTier: "free",
-    useCases: ["code", "debugging"],
+    useCases: ["code", "projects", "webdev"],
     website: "https://cursor.com",
-  },
-  {
-    name: "Amazon CodeWhisperer",
-    logo: "☁️",
-    tagline: "AWS-integrated coding AI with security scanning",
-    pricing: "Free / $19/mo Professional",
-    pricingDetail: "Individual tier free; Professional $19/mo/user",
-    contextWindow: "~8K tokens",
-    strengths: ["Free tier with no limits", "Deep AWS service awareness", "Real-time security vulnerability scanning", "Enterprise compliance (SOC 2)", "Reference tracker for open-source licensing"],
-    weaknesses: ["Best only in AWS ecosystem", "Less powerful than cloud rivals", "Smaller community", "Limited languages compared to rivals"],
-    bestFor: ["AWS cloud development", "Cloud-native code", "Enterprise security compliance", "Serverless & Lambda development"],
-    supportsLocal: false,
-    supportsImages: false,
-    supportsLongContext: false,
-    speed: "fast",
-    categories: ["code", "cloud"],
-    languages: ["python", "javascript", "java", "multiple"],
-    budgetTier: "free",
-    useCases: ["code", "debugging"],
-    website: "https://aws.amazon.com/codewhisperer",
-  },
-  {
-    name: "Tabnine",
-    logo: "🔮",
-    tagline: "Privacy-first AI — local models for sensitive codebases",
-    pricing: "Free / $12/mo Pro",
-    pricingDetail: "Free limited; $12/mo Pro; $39/mo Enterprise",
-    contextWindow: "~2K tokens",
-    strengths: ["Local / offline model available", "Privacy-first — code never leaves machine", "Team training on private codebase", "Fast completions", "GDPR compliant"],
-    weaknesses: ["Less powerful than cloud rivals", "Chat features limited on free tier", "Smaller model capacity", "No web browsing or image support"],
-    bestFor: ["Privacy-sensitive codebases", "Regulated industries", "Offline / airgapped environments", "Enterprise with strict data rules"],
-    supportsLocal: true,
-    supportsImages: false,
-    supportsLongContext: false,
-    speed: "fast",
-    categories: ["code", "ide", "local"],
-    languages: ["python", "javascript", "java", "cpp", "multiple"],
-    budgetTier: "free",
-    useCases: ["code", "debugging"],
-    website: "https://tabnine.com",
+    studentTip: "Use Cursor's free tier for project assignments, then fall back to ChatGPT for concept explanations.",
   },
 ];
 
 // ─── Scoring Engine ───────────────────────────────────────────────────────────
 
 function scoreTool(tool: AITool, answers: Record<string, string | string[]>): number {
-  let score = 50; // base score
+  let score = 40;
 
   const goals = (answers.goal as string[]) || [];
   const budget = answers.budget as string;
-  const local = answers.local as string;
-  const context = answers.context as string;
-  const images = answers.images as string;
-  const speed = answers.speed as string;
+  const editor = answers.editor as string;
+  const taskType = answers.task_type as string;
+  const style = answers.style as string;
   const experience = answers.experience as string;
 
   // Goal matching
@@ -291,68 +308,59 @@ function scoreTool(tool: AITool, answers: Record<string, string | string[]>): nu
     if (tool.useCases.includes(goal)) score += 8;
   }
 
+  // Task type match
+  if (tool.useCases.includes(taskType)) score += 10;
+
   // Budget
-  const budgetOrder = { free: 0, low: 1, medium: 2, high: 3 };
-  const toolBudget = budgetOrder[tool.budgetTier];
-  const userBudget = budgetOrder[budget as keyof typeof budgetOrder] ?? 0;
-  if (toolBudget <= userBudget) score += 10;
-  else score -= 15;
+  if (budget === "free" && tool.budgetTier === "free") score += 15;
+  else if (budget === "low" && tool.budgetTier !== "medium") score += 8;
+  else if (budget === "free" && tool.budgetTier !== "free") score -= 20;
 
-  // Local requirement
-  if (local === "yes" && !tool.supportsLocal) score -= 30;
-  if (local === "yes" && tool.supportsLocal) score += 20;
-  if (local === "preferred" && tool.supportsLocal) score += 10;
+  // IDE preference
+  if (editor === "yes" && tool.supportsIDE) score += 20;
+  if (editor === "yes" && !tool.supportsIDE) score -= 10;
+  if (editor === "no" && tool.supportsIDE) score -= 5;
 
-  // Context window
-  if (context === "yes" && !tool.supportsLongContext) score -= 20;
-  if (context === "yes" && tool.supportsLongContext) score += 15;
-
-  // Image support
-  if (images === "yes" && !tool.supportsImages) score -= 20;
-  if (images === "yes" && tool.supportsImages) score += 15;
-
-  // Speed
-  if (speed === "critical" && tool.speed === "fast") score += 10;
-  if (speed === "critical" && tool.speed === "slow") score -= 10;
-  if (speed === "quality" && tool.speed === "fast") score += 3; // still good
+  // Style match
+  if (style === "detailed" && (tool.name.includes("Claude") || tool.name.includes("ChatGPT"))) score += 10;
+  if (style === "code" && (tool.name.includes("Copilot") || tool.name.includes("Cursor"))) score += 10;
+  if (style === "explore" && (tool.name.includes("ChatGPT") || tool.name.includes("Claude"))) score += 8;
 
   // Experience level
-  if (experience === "beginner" && (tool.name.includes("ChatGPT") || tool.name.includes("Gemini"))) score += 10;
-  if ((experience === "advanced" || experience === "expert") && tool.name.includes("Cursor")) score += 8;
-  if ((experience === "advanced" || experience === "expert") && tool.name.includes("Claude")) score += 8;
+  if (experience === "beginner" && tool.name.includes("ChatGPT")) score += 10;
+  if (experience === "beginner" && (tool.name.includes("Cursor"))) score -= 5;
+  if ((experience === "intermediate" || experience === "advanced") && tool.name.includes("Cursor")) score += 8;
+  if (experience === "advanced" && tool.name.includes("Copilot")) score += 8;
 
   return Math.max(0, Math.min(100, score));
 }
 
-function getRecommendationReason(tool: AITool, answers: Record<string, string | string[]>): string {
+function getMatchReason(tool: AITool, answers: Record<string, string | string[]>): string {
   const goals = (answers.goal as string[]) || [];
-  const local = answers.local as string;
-  const context = answers.context as string;
-  const images = answers.images as string;
+  const editor = answers.editor as string;
+  const style = answers.style as string;
 
   const reasons: string[] = [];
+  if (tool.supportsIDE && editor === "yes") reasons.push("works inside your IDE");
+  if (goals.includes("learning") && (tool.name.includes("Claude") || tool.name.includes("ChatGPT")))
+    reasons.push("great for learning and concept explanation");
+  if (goals.includes("code") && tool.useCases.includes("code")) reasons.push("strong code generation");
+  if (goals.includes("research") && !tool.supportsIDE) reasons.push("excellent for research tasks");
+  if (style === "detailed" && tool.name.includes("Claude")) reasons.push("provides deep, thorough explanations");
+  if (tool.budgetTier === "free") reasons.push("free tier works well for students");
 
-  if (tool.supportsLocal && local === "yes") reasons.push("supports local/offline mode");
-  if (tool.supportsLongContext && context === "yes") reasons.push("has a large context window");
-  if (tool.supportsImages && images === "yes") reasons.push("supports image analysis");
-  if (goals.includes("code") && tool.categories.includes("code")) reasons.push("excels at code generation");
-  if (goals.includes("research") && tool.categories.includes("general")) reasons.push("great for research tasks");
-  if (goals.includes("debugging") && tool.categories.includes("code")) reasons.push("strong debugging capabilities");
-
-  if (reasons.length === 0) return "matches your overall requirements well.";
-  return reasons.join(", ") + ".";
+  return reasons.length > 0 ? reasons.join(", ") + "." : "matches your overall requirements.";
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Score Bar ────────────────────────────────────────────────────────────────
 
 function ScoreBar({ score }: { score: number }) {
-  const color = score >= 75 ? "from-green-500 to-emerald-400"
+  const color = score >= 70 ? "from-green-500 to-emerald-400"
     : score >= 50 ? "from-accent-primary to-blue-400"
     : "from-yellow-500 to-orange-400";
-
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${score}%` }}
@@ -365,114 +373,114 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
-function ToolCard({ tool, score, reason, rank, comparing, onToggleCompare }: {
+// ─── Recommendation Card ──────────────────────────────────────────────────────
+
+function RecommendationCard({
+  tool, score, reason, isBest, isAlternative
+}: {
   tool: AITool;
   score: number;
   reason: string;
-  rank: number;
-  comparing: boolean;
-  onToggleCompare: () => void;
+  isBest: boolean;
+  isAlternative: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-
-  const rankColors = ["from-yellow-500/20 to-amber-500/20 border-yellow-500/30",
-    "from-slate-400/10 to-slate-300/10 border-slate-400/20",
-    "from-orange-700/15 to-orange-600/15 border-orange-700/30",
-  ];
-  const rankLabels = ["🥇 Best Match", "🥈 Great Choice", "🥉 Good Option"];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: rank * 0.1 }}
       className={`glass-panel rounded-2xl overflow-hidden border ${
-        comparing ? "border-accent-primary/50 shadow-[0_0_20px_rgba(110,231,255,0.1)]" : "border-white/10"
+        isBest ? "border-accent-primary/40 shadow-[0_0_30px_rgba(110,231,255,0.08)]"
+          : isAlternative ? "border-yellow-500/30"
+          : "border-white/10"
       }`}
     >
-      {/* Rank banner */}
-      {rank < 3 && (
-        <div className={`px-5 py-2 bg-linear-to-r ${rankColors[rank]} border-b border-white/5 text-xs font-bold`}>
-          {rankLabels[rank]}
+      {/* Badge */}
+      {isBest && (
+        <div className="flex items-center gap-2 px-5 py-2 bg-accent-primary/10 border-b border-accent-primary/20">
+          <Trophy className="w-4 h-4 text-accent-primary" />
+          <span className="text-xs font-bold text-accent-primary">Best Recommendation</span>
+        </div>
+      )}
+      {isAlternative && (
+        <div className="flex items-center gap-2 px-5 py-2 bg-yellow-500/8 border-b border-yellow-500/20">
+          <Lightbulb className="w-4 h-4 text-yellow-400" />
+          <span className="text-xs font-bold text-yellow-400">Alternative Recommendation</span>
         </div>
       )}
 
-      <div className="p-6">
+      <div className="p-6 space-y-4">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl">
-              {tool.logo}
-            </div>
-            <div>
-              <h3 className="font-display font-bold text-white text-base">{tool.name}</h3>
-              <p className="text-xs text-text-muted">{tool.tagline}</p>
-            </div>
+        <div className="flex items-start gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl shrink-0">
+            {tool.logo}
           </div>
-          <button
-            onClick={onToggleCompare}
-            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-              comparing
-                ? "bg-accent-primary/20 border-accent-primary/40 text-accent-primary"
-                : "bg-white/5 border-white/10 text-text-muted hover:text-white"
-            }`}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display font-bold text-white">{tool.name}</h3>
+            <p className="text-xs text-text-muted leading-tight mt-0.5">{tool.tagline}</p>
+          </div>
+          <a
+            href={tool.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-accent-primary/10 border border-accent-primary/30 text-accent-primary text-xs font-semibold hover:bg-accent-primary/20 transition-colors"
           >
-            {comparing ? "✓ Comparing" : "Compare"}
-          </button>
+            Visit <ArrowRight className="w-3 h-3" />
+          </a>
         </div>
 
         {/* Score */}
-        <div className="mb-4">
+        <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-text-muted font-medium">Match Score</span>
-            <div className="flex items-center gap-1">
+            <span className="text-xs text-text-muted">Match Score</span>
+            <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${i < Math.round(score / 20) ? "text-yellow-400 fill-yellow-400" : "text-white/10"}`}
-                />
+                <Star key={i} className={`w-3 h-3 ${i < Math.round(score / 20) ? "text-yellow-400 fill-yellow-400" : "text-white/10"}`} />
               ))}
             </div>
           </div>
           <ScoreBar score={score} />
         </div>
 
-        {/* Why recommended */}
-        <div className="flex items-start gap-2 mb-4 p-3 rounded-xl bg-accent-primary/5 border border-accent-primary/15">
+        {/* Why */}
+        <div className="p-3 rounded-xl bg-accent-primary/5 border border-accent-primary/15 flex items-start gap-2">
           <ChevronRight className="w-4 h-4 text-accent-primary shrink-0 mt-0.5" />
           <p className="text-xs text-text-muted leading-relaxed">
-            <span className="text-accent-primary font-medium">Why this fits you: </span>
-            {reason}
+            <span className="text-accent-primary font-medium">Why this fits you: </span>{reason}
           </p>
         </div>
 
         {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/8">
-            <DollarSign className="w-3.5 h-3.5 text-green-400 shrink-0" />
-            <span className="text-xs text-text-muted">{tool.pricing}</span>
-          </div>
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/8">
-            <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-            <span className="text-xs text-text-muted">{tool.contextWindow}</span>
-          </div>
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/8">
-            <Zap className={`w-3.5 h-3.5 shrink-0 ${tool.speed === "fast" ? "text-yellow-400" : tool.speed === "medium" ? "text-blue-400" : "text-gray-400"}`} />
-            <span className="text-xs text-text-muted capitalize">{tool.speed} speed</span>
-          </div>
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/8">
-            <span className="text-xs">{tool.supportsLocal ? "🔒" : "☁️"}</span>
-            <span className="text-xs text-text-muted">{tool.supportsLocal ? "Local available" : "Cloud only"}</span>
-          </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { icon: DollarSign, color: "text-green-400", val: tool.pricing },
+            { icon: Globe, color: "text-blue-400", val: tool.contextWindow },
+            { icon: Zap, color: tool.speed === "fast" ? "text-yellow-400" : "text-blue-400", val: tool.speed + " speed" },
+            { icon: BarChart2, color: "text-purple-400", val: tool.supportsIDE ? "IDE ✓" : "Chat only" },
+          ].map(({ icon: Icon, color, val }, i) => (
+            <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/8">
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${color}`} />
+              <span className="text-xs text-text-muted capitalize truncate">{val}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Expand / Collapse */}
+        {/* Student Tip */}
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-yellow-500/5 border border-yellow-500/15">
+          <span className="text-base shrink-0">💡</span>
+          <p className="text-xs text-text-muted leading-relaxed">
+            <span className="text-yellow-400 font-semibold">Student tip: </span>{tool.studentTip}
+          </p>
+        </div>
+
+        {/* Expand toggle */}
         <button
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1.5 text-xs text-text-muted hover:text-white transition-colors"
         >
           <ChevronRight className={`w-3.5 h-3.5 transition-transform ${expanded ? "rotate-90" : ""}`} />
-          {expanded ? "Show less" : "Show strengths & weaknesses"}
+          {expanded ? "Show less" : "Strengths, weaknesses & use cases"}
         </button>
 
         <AnimatePresence>
@@ -483,7 +491,8 @@ function ToolCard({ tool, score, reason, rank, comparing, onToggleCompare }: {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 space-y-4">
+              <div className="space-y-4 pt-2">
+                {/* Strengths */}
                 <div>
                   <p className="text-xs font-semibold text-green-400 mb-2">✅ Strengths</p>
                   <ul className="space-y-1.5">
@@ -494,6 +503,8 @@ function ToolCard({ tool, score, reason, rank, comparing, onToggleCompare }: {
                     ))}
                   </ul>
                 </div>
+
+                {/* Weaknesses */}
                 <div>
                   <p className="text-xs font-semibold text-red-400 mb-2">❌ Weaknesses</p>
                   <ul className="space-y-1.5">
@@ -504,24 +515,24 @@ function ToolCard({ tool, score, reason, rank, comparing, onToggleCompare }: {
                     ))}
                   </ul>
                 </div>
+
+                {/* Best Use Cases */}
                 <div>
-                  <p className="text-xs font-semibold text-accent-primary mb-2">🎯 Best For</p>
+                  <p className="text-xs font-semibold text-accent-primary mb-2">🎯 Best Use Cases</p>
                   <ul className="space-y-1.5">
-                    {tool.bestFor.map((b, i) => (
+                    {tool.bestUseCases.map((b, i) => (
                       <li key={i} className="flex items-start gap-2 text-xs text-text-muted">
-                        <Minus className="w-3.5 h-3.5 text-accent-primary shrink-0 mt-0.5" /> {b}
+                        <ChevronRight className="w-3.5 h-3.5 text-accent-primary shrink-0 mt-0.5" /> {b}
                       </li>
                     ))}
                   </ul>
                 </div>
-                <a
-                  href={tool.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent-primary/10 border border-accent-primary/30 text-accent-primary text-xs font-semibold hover:bg-accent-primary/20 transition-colors"
-                >
-                  Visit {tool.name.split(" ")[0]} <ArrowRight className="w-3 h-3" />
-                </a>
+
+                {/* Pricing detail */}
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-xs font-semibold text-white mb-1">💰 Pricing Detail</p>
+                  <p className="text-xs text-text-muted">{tool.pricingDetail}</p>
+                </div>
               </div>
             </motion.div>
           )}
@@ -531,83 +542,15 @@ function ToolCard({ tool, score, reason, rank, comparing, onToggleCompare }: {
   );
 }
 
-function CompareModal({ tools, onClose }: { tools: AITool[]; onClose: () => void }) {
-  const dims = [
-    { key: "pricing", label: "Pricing", icon: DollarSign },
-    { key: "contextWindow", label: "Context Window", icon: Globe },
-    { key: "supportsLocal", label: "Local AI", icon: Zap },
-    { key: "supportsImages", label: "Image Support", icon: Star },
-    { key: "speed", label: "Speed", icon: BarChart2 },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="glass-panel rounded-2xl p-6 max-w-3xl w-full overflow-x-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-display font-bold text-white text-xl">Comparison</h3>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">✕</button>
-        </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10">
-              <th className="text-left py-3 pr-4 text-text-muted text-xs uppercase tracking-wider w-32">Feature</th>
-              {tools.map((t) => (
-                <th key={t.name} className="text-center py-3 px-3 text-white text-xs">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-2xl">{t.logo}</span>
-                    <span>{t.name.split(" ")[0]}</span>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {dims.map((dim, i) => (
-              <tr key={dim.key} className={`border-b border-white/5 ${i % 2 === 0 ? "" : "bg-white/2"}`}>
-                <td className="py-3 pr-4 text-xs text-text-muted font-medium">{dim.label}</td>
-                {tools.map((t) => {
-                  const val = t[dim.key as keyof AITool];
-                  return (
-                    <td key={t.name} className="py-3 px-3 text-center text-xs">
-                      {typeof val === "boolean"
-                        ? val ? <CheckCircle className="w-4 h-4 text-green-400 mx-auto" /> : <XCircle className="w-4 h-4 text-red-400 mx-auto" />
-                        : <span className="text-text-muted">{String(val)}</span>
-                      }
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ─── Main Page ───────────────────────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function FindAIPage() {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [showResults, setShowResults] = useState(false);
-  const [comparing, setComparing] = useState<Set<string>>(new Set());
-  const [showCompare, setShowCompare] = useState(false);
 
   const question = QUESTIONS[currentQ];
-  const progress = ((currentQ) / QUESTIONS.length) * 100;
+  const progress = (currentQ / QUESTIONS.length) * 100;
 
   const handleAnswer = (value: string) => {
     if (question.multi) {
@@ -618,7 +561,6 @@ export default function FindAIPage() {
       setAnswers((prev) => ({ ...prev, [question.id]: updated }));
     } else {
       setAnswers((prev) => ({ ...prev, [question.id]: value }));
-      // Auto-advance for single select
       if (currentQ < QUESTIONS.length - 1) {
         setTimeout(() => setCurrentQ((prev) => prev + 1), 300);
       } else {
@@ -640,26 +582,17 @@ export default function FindAIPage() {
     setAnswers({});
     setCurrentQ(0);
     setShowResults(false);
-    setComparing(new Set());
   };
 
-  const toggleCompare = (name: string) => {
-    setComparing((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else if (next.size < 3) next.add(name);
-      return next;
-    });
-  };
-
-  // Compute ranked results
   const rankedTools = AI_TOOLS.map((tool) => ({
     tool,
     score: scoreTool(tool, answers),
-    reason: getRecommendationReason(tool, answers),
+    reason: getMatchReason(tool, answers),
   })).sort((a, b) => b.score - a.score);
 
-  const compareTools = AI_TOOLS.filter((t) => comparing.has(t.name));
+  const bestTool = rankedTools[0];
+  const altTool = rankedTools[1];
+  const restTools = rankedTools.slice(2);
 
   if (showResults) {
     return (
@@ -668,57 +601,83 @@ export default function FindAIPage() {
         <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
 
         <PageHero
-          badge="Your Results"
-          title="Your AI"
-          highlight="Recommendations"
-          subtitle="Based on your answers, here are the best AI tools ranked specifically for your needs."
+          badge="Your AI Recommendation"
+          title="Your Perfect"
+          highlight="AI Study Partner"
+          subtitle="Based on your goals and experience, here are the best AI tools ranked for your needs as a student."
           icon={Compass}
         />
 
-        <div className="max-w-5xl mx-auto px-6 pb-32 space-y-6">
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="max-w-3xl mx-auto px-6 pb-32 space-y-6">
+          {/* Retake */}
+          <div className="flex justify-end">
             <button
               onClick={handleReset}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-text-muted hover:text-white transition-colors"
             >
               <RefreshCw className="w-4 h-4" /> Retake Quiz
             </button>
-            {comparing.size >= 2 && (
-              <button
-                onClick={() => setShowCompare(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-primary/20 border border-accent-primary/40 text-accent-primary text-sm font-semibold hover:bg-accent-primary/30 transition-colors"
-              >
-                <BarChart2 className="w-4 h-4" /> Compare {comparing.size} Tools
-              </button>
-            )}
-            {comparing.size > 0 && comparing.size < 2 && (
-              <p className="text-xs text-text-muted">Select {2 - comparing.size} more to compare</p>
-            )}
           </div>
 
-          {/* Results grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {rankedTools.map(({ tool, score, reason }, idx) => (
-              <ToolCard
-                key={tool.name}
-                tool={tool}
-                score={score}
-                reason={reason}
-                rank={idx}
-                comparing={comparing.has(tool.name)}
-                onToggleCompare={() => toggleCompare(tool.name)}
-              />
-            ))}
-          </div>
-        </div>
+          {/* Best recommendation */}
+          <RecommendationCard
+            tool={bestTool.tool}
+            score={bestTool.score}
+            reason={bestTool.reason}
+            isBest={true}
+            isAlternative={false}
+          />
 
-        {/* Compare Modal */}
-        <AnimatePresence>
-          {showCompare && compareTools.length >= 2 && (
-            <CompareModal tools={compareTools} onClose={() => setShowCompare(false)} />
+          {/* Alternative recommendation */}
+          <div>
+            <p className="text-xs text-text-muted font-semibold uppercase tracking-wider mb-3">
+              Alternative Recommendation
+            </p>
+            <RecommendationCard
+              tool={altTool.tool}
+              score={altTool.score}
+              reason={altTool.reason}
+              isBest={false}
+              isAlternative={true}
+            />
+          </div>
+
+          {/* Other tools */}
+          {restTools.length > 0 && (
+            <div>
+              <p className="text-xs text-text-muted font-semibold uppercase tracking-wider mb-3">
+                Other Options to Explore
+              </p>
+              <div className="space-y-4">
+                {restTools.map(({ tool, score, reason }) => (
+                  <RecommendationCard
+                    key={tool.name}
+                    tool={tool}
+                    score={score}
+                    reason={reason}
+                    isBest={false}
+                    isAlternative={false}
+                  />
+                ))}
+              </div>
+            </div>
           )}
-        </AnimatePresence>
+
+          {/* Pro tip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="glass-panel rounded-2xl p-5 border border-accent-primary/20"
+          >
+            <p className="text-sm font-semibold text-white mb-2">🎓 Student Pro Tip</p>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Most successful students use <strong className="text-white">2 AI tools together</strong>: 
+              a chat AI (ChatGPT/Claude/Gemini) for understanding concepts and explanations, 
+              plus a code AI (Copilot/Cursor) for writing and debugging in their IDE. Start with 
+              free tiers and upgrade only if you hit limits.
+            </p>
+          </motion.div>
+        </div>
       </div>
     );
   }
@@ -732,10 +691,10 @@ export default function FindAIPage() {
       <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
 
       <PageHero
-        badge="AI Recommender"
+        badge="AI Study Partner Finder"
         title="Find Your"
         highlight="AI Assistant"
-        subtitle="Answer 8 quick questions and get a personalized AI tool recommendation with strengths, weaknesses, and pricing."
+        subtitle="Answer 6 quick questions and get a personalized AI tool recommendation — plus strengths, weaknesses, and student tips."
         icon={Compass}
       />
 
@@ -794,9 +753,7 @@ export default function FindAIPage() {
                         : "glass-panel glass-panel-hover text-text-muted hover:text-white"
                     }`}
                   >
-                    {option.icon && (
-                      <span className="text-xl shrink-0">{option.icon}</span>
-                    )}
+                    {option.icon && <span className="text-xl shrink-0">{option.icon}</span>}
                     <span className="font-medium text-sm">{option.label}</span>
                     {isSelected && question.multi && (
                       <CheckCircle className="w-4 h-4 text-accent-primary ml-auto shrink-0" />
@@ -822,7 +779,7 @@ export default function FindAIPage() {
                   disabled={!isMultiAnswered}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent-primary/20 border border-accent-primary/40 text-accent-primary font-semibold text-sm hover:bg-accent-primary/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {currentQ === QUESTIONS.length - 1 ? "See Results" : "Next"}
+                  {currentQ === QUESTIONS.length - 1 ? "See My Recommendation" : "Next"}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
