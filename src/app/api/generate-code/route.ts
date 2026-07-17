@@ -85,7 +85,7 @@ Rules:
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/generate-code]", message);
 
-    if (message.includes("GEMINI_API_KEY")) {
+    if (message.includes("API_KEY")) {
       return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
     }
 

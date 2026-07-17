@@ -75,7 +75,7 @@ Return ONLY valid JSON (no markdown, no extra text) in this exact format:
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/improve-prompt]", message);
 
-    if (message.includes("GEMINI_API_KEY")) {
+    if (message.includes("API_KEY")) {
       return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
     }
 

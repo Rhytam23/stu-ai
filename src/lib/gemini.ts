@@ -1,14 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 function validateApiKey(): string {
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!key) {
     throw new Error(
-      "GEMINI_API_KEY is not set. Create a .env.local file with GEMINI_API_KEY=your_key_here"
+      "GEMINI_API_KEY or GOOGLE_API_KEY is not set. Please configure the environment key."
     );
   }
   if (key.length < 10) {
-    throw new Error("GEMINI_API_KEY appears to be invalid (too short).");
+    throw new Error("API Key appears to be invalid (too short).");
   }
   return key;
 }

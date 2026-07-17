@@ -92,7 +92,7 @@ When explaining concepts, be thorough but accessible. When writing code, ensure 
     const message = err instanceof Error ? err.message : "An unexpected error occurred.";
     console.error("[/api/chat]", message);
 
-    if (message.includes("GEMINI_API_KEY")) {
+    if (message.includes("API_KEY")) {
       return NextResponse.json(
         { error: "Server configuration error. The Gemini API key is not set." },
         { status: 503 }
