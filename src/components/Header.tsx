@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
-import { Cpu, Terminal, Menu, X, ChevronDown, BookOpen, Wrench } from "lucide-react";
+import { Cpu, Terminal, Menu, X, ChevronDown, BookOpen, Wrench, Tv } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,6 +31,26 @@ export default function Header() {
     restDelta: 0.001,
   });
   const pathname = usePathname();
+  const [projectorMode, setProjectorMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("projectorMode") === "true";
+    setProjectorMode(saved);
+    if (saved) {
+      document.documentElement.classList.add("projector-mode");
+    }
+  }, []);
+
+  const toggleProjectorMode = () => {
+    const next = !projectorMode;
+    setProjectorMode(next);
+    localStorage.setItem("projectorMode", String(next));
+    if (next) {
+      document.documentElement.classList.add("projector-mode");
+    } else {
+      document.documentElement.classList.remove("projector-mode");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -191,6 +211,20 @@ export default function Header() {
             About
           </Link>
 
+          {/* Projector Mode Toggle */}
+          <button
+            onClick={toggleProjectorMode}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 transition-all duration-300 ${
+              projectorMode 
+                ? "bg-accent-primary/20 border-accent-primary/50 text-accent-primary shadow-[0_0_15px_rgba(110,231,255,0.25)]" 
+                : "bg-white/5 border-white/10 text-text-muted hover:text-white"
+            }`}
+            title="Toggle Projector Mode (High Contrast & Large Text)"
+          >
+            <Tv className="w-3.5 h-3.5" />
+            {projectorMode ? "Projector On" : "Projector Mode"}
+          </button>
+
           {/* CTA */}
           <Link
             href="/playground"
@@ -237,6 +271,17 @@ export default function Header() {
             ))}
             <Link href="/future" className="py-2 text-sm text-text-muted hover:text-white transition-colors border-t border-white/5 mt-1 pt-3">Future</Link>
             <Link href="/about" className="py-2 text-sm text-text-muted hover:text-white transition-colors">About</Link>
+            <button
+              onClick={toggleProjectorMode}
+              className={`w-full py-2.5 rounded-full text-sm font-semibold border flex items-center justify-center gap-1.5 transition-all duration-300 mt-2 ${
+                projectorMode 
+                  ? "bg-accent-primary/20 border-accent-primary/50 text-accent-primary shadow-[0_0_15px_rgba(110,231,255,0.25)]" 
+                  : "bg-white/5 border-white/10 text-text-muted hover:text-white"
+              }`}
+            >
+              <Tv className="w-4 h-4" />
+              {projectorMode ? "Projector Mode: On" : "Projector Mode: Off"}
+            </button>
             <Link href="/playground" className="mt-3 w-full text-center px-4 py-3 rounded-full text-sm font-semibold bg-accent-secondary text-white flex items-center justify-center gap-1.5">
               <Terminal className="w-4 h-4" />
               Try AI Playground

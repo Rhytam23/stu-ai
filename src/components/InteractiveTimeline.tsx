@@ -85,7 +85,7 @@ export default function InteractiveTimeline() {
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
-      <div className="relative border-l border-white/10 ml-4 md:ml-32 pl-8 md:pl-16 space-y-12">
+      <div className="relative border-l border-white/10 ml-4 md:ml-48 pl-8 md:pl-12 space-y-12">
         {milestones.map((milestone, idx) => {
           const Icon = milestone.icon;
           const isActive = activeMilestone === idx;
@@ -101,7 +101,7 @@ export default function InteractiveTimeline() {
               onClick={() => setActiveMilestone(isActive ? null : idx)}
             >
               {/* Year Badge on the Left */}
-              <div className="hidden md:flex absolute right-full mr-16 top-1 text-right flex-col items-end">
+              <div className="hidden md:flex absolute right-full mr-8 top-1 text-right flex-col items-end w-36">
                 <span className="font-display font-bold text-2xl text-accent-primary group-hover:text-white transition-colors duration-300">
                   {milestone.year}
                 </span>

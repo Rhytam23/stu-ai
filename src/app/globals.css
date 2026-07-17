@@ -72,3 +72,40 @@ body {
   box-shadow: 0 0 30px rgba(110, 231, 255, 0.05);
 }
 
+/* Projector Mode adjustments for high visibility in presentations */
+.projector-mode {
+  font-size: 105%;
+}
+
+.projector-mode body {
+  background-color: #000000 !important;
+}
+
+.projector-mode .text-text-muted,
+.projector-mode .text-slate-400,
+.projector-mode .text-gray-400 {
+  color: #e2e8f0 !important;
+}
+
+.projector-mode .text-text-muted\/70,
+.projector-mode .text-text-muted\/50 {
+  color: #cbd5e1 !important;
+}
+
+.projector-mode .border-white\/10,
+.projector-mode .border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.projector-mode .glass-panel {
+  background: rgba(8, 12, 22, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05) !important;
+}
+
+.projector-mode .glass-panel-hover:hover {
+  background: rgba(8, 12, 22, 1) !important;
+  border-color: rgba(110, 231, 255, 0.4) !important;
+  box-shadow: 0 0 25px rgba(110, 231, 255, 0.15) !important;
+}
+
