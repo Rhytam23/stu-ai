@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel();
 
     const systemPrompt = `You are an expert software engineer. Generate production-quality ${lang} code based on the user's description.
 

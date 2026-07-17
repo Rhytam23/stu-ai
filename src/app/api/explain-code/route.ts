@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel();
 
     const prompt = `You are an expert ${lang} developer and computer science educator. Analyze the following ${lang} code and provide a structured explanation.
 

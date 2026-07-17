@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel();
 
     const analysisPrompt = `You are an expert prompt engineer. Analyze this user prompt and rewrite it in three quality tiers.
 

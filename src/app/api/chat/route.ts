@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel();
 
     const defaultSystem = `You are an expert AI assistant specializing in artificial intelligence, machine learning, programming, and software engineering. 
 Provide clear, accurate, and educational responses. Format code blocks with proper markdown syntax highlighting.
