@@ -1,49 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, GitBranch, ExternalLink, Mail } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import GlassCard from "@/components/ui/GlassCard";
-
-const teamMembers = [
-  {
-    initials: "AK",
-    name: "Arjun Kumar",
-    role: "Lead Developer & AI Researcher",
-    bio: "Specializes in large language model architectures and AI-driven developer tools. Built the backend security layer and Gemini API integration for this project.",
-    skills: ["Next.js", "Python", "Machine Learning", "API Design"],
-    gradient: "from-accent-primary to-cyan-600",
-  },
-  {
-    initials: "PS",
-    name: "Priya Sharma",
-    role: "UI/UX Designer & Frontend Engineer",
-    bio: "Expert in creating premium, accessible web interfaces. Designed the dark futuristic theme, component system, and interactive timeline used throughout this portal.",
-    skills: ["React", "Framer Motion", "Tailwind CSS", "Design Systems"],
-    gradient: "from-accent-secondary to-purple-700",
-  },
-  {
-    initials: "RV",
-    name: "Rahul Verma",
-    role: "ML Engineer & Content Researcher",
-    bio: "Machine learning practitioner with deep knowledge of neural network architectures. Authored the AI Foundations content and quiz question bank.",
-    skills: ["TensorFlow", "PyTorch", "NLP", "Research Writing"],
-    gradient: "from-emerald-500 to-teal-600",
-  },
-  {
-    initials: "NK",
-    name: "Neha Kapoor",
-    role: "Backend Developer & Security Specialist",
-    bio: "Focuses on secure API design and server-side architecture. Designed the rate limiting, input validation, and environment security model for this project.",
-    skills: ["Node.js", "API Security", "TypeScript", "DevOps"],
-    gradient: "from-pink-500 to-rose-600",
-  },
-];
 
 const projectInfo = [
   { label: "Project Type", value: "Educational AI Portal" },
   { label: "Tech Stack", value: "Next.js 16, TypeScript, Tailwind CSS v4, Framer Motion" },
-  { label: "AI Integration", value: "Google Gemini 1.5 Flash (Server-side only)" },
+  { label: "AI Integration", value: "Google Gemini 3.5 Flash (Server-side only)" },
   { label: "Pages", value: "11 multi-page application" },
   { label: "AI Features", value: "Playground, Code Explainer, Code Generator, Prompt Lab" },
   { label: "Security", value: "Backend API routes, env vars, rate limiting" },
@@ -57,10 +22,10 @@ export default function AboutPage() {
 
       <PageHero
         badge="About This Portal"
-        title="Meet the"
-        highlight="Team"
-        subtitle="A college project built with passion — combining a genuine interest in AI education with real engineering practices."
-        icon={Users}
+        title="About The"
+        highlight="Project"
+        subtitle="Exploring the frontiers of artificial intelligence education with secure, interactive, server-side tools."
+        icon={BookOpen}
       />
 
       {/* Mission */}
@@ -91,64 +56,6 @@ export default function AboutPage() {
             </div>
           </div>
         </motion.div>
-      </section>
-
-      {/* Team */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="font-display font-bold text-3xl md:text-4xl text-white mb-8"
-        >
-          The Team
-        </motion.h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {teamMembers.map((member, i) => (
-            <GlassCard key={i} delay={i * 0.1}>
-              <div className="flex items-start gap-5">
-                {/* Avatar */}
-                <div
-                  className={`w-16 h-16 rounded-2xl bg-linear-to-br ${member.gradient} flex items-center justify-center shrink-0 shadow-lg`}
-                >
-                  <span className="font-display font-bold text-2xl text-white">{member.initials}</span>
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-lg text-white">{member.name}</h3>
-                  <p className="text-accent-primary text-xs font-semibold mb-2">{member.role}</p>
-                  <p className="text-text-muted text-sm leading-relaxed mb-3">{member.bio}</p>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="text-xs px-2.5 py-0.5 rounded-full bg-white/8 border border-white/10 text-text-muted"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Social links (placeholder) */}
-                  <div className="flex gap-2 mt-3">
-                    <a href="#" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all" aria-label="GitHub">
-                      <GitBranch className="w-3.5 h-3.5" />
-                    </a>
-                    <a href="#" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all" aria-label="LinkedIn">
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                    <a href="#" className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all" aria-label="Email">
-                      <Mail className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </GlassCard>
-          ))}
-        </div>
       </section>
 
       {/* Security Architecture Note */}
