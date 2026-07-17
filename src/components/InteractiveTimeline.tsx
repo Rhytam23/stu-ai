@@ -85,7 +85,7 @@ export default function InteractiveTimeline() {
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
-      <div className="relative border-l border-white/10 ml-4 md:ml-48 pl-8 md:pl-12 space-y-12">
+      <div className="relative border-l border-white/10 ml-4 md:ml-48 space-y-12">
         {milestones.map((milestone, idx) => {
           const Icon = milestone.icon;
           const isActive = activeMilestone === idx;
@@ -97,11 +97,11 @@ export default function InteractiveTimeline() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="relative group cursor-pointer"
+              className="relative group cursor-pointer pl-8 md:pl-12"
               onClick={() => setActiveMilestone(isActive ? null : idx)}
             >
               {/* Year Badge on the Left */}
-              <div className="hidden md:flex absolute right-full mr-8 top-1 text-right flex-col items-end w-36">
+              <div className="hidden md:flex absolute right-full mr-6 top-1 text-right flex-col items-end w-36">
                 <span className="font-display font-bold text-2xl text-accent-primary group-hover:text-white transition-colors duration-300">
                   {milestone.year}
                 </span>
@@ -111,7 +111,7 @@ export default function InteractiveTimeline() {
               </div>
 
               {/* Icon Dot */}
-              <div className="absolute -left-12 md:-left-20 top-1.5 flex items-center justify-center w-8 h-8 rounded-full border border-white/10 bg-bg-secondary group-hover:border-accent-primary/50 group-hover:bg-[#1a1b35] transition-all duration-300">
+              <div className="absolute left-0 -translate-x-1/2 top-1.5 flex items-center justify-center w-8 h-8 rounded-full border border-white/10 bg-bg-secondary group-hover:border-accent-primary/50 group-hover:bg-[#1a1b35] transition-all duration-300">
                 <Icon className="w-4 h-4 text-accent-primary" />
               </div>
 
