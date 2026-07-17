@@ -6,7 +6,6 @@ import { Code2, Wand2, AlertCircle, CheckCircle, Clock, Zap, Bug, Star } from "l
 import PageHero from "@/components/ui/PageHero";
 import CodeBlock from "@/components/ui/CodeBlock";
 import LoadingDots from "@/components/ui/LoadingDots";
-import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 const LANGUAGES = ["python", "javascript", "typescript", "java", "c", "cpp"] as const;
 type Language = typeof LANGUAGES[number];
