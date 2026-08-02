@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Calendar, ChevronRight, Cpu, Sparkles, BookOpen, Snowflake,
+  Calendar, ChevronRight, Cpu, Sparkles, Snowflake,
   Brain, Layers, Terminal, X, Zap, Globe, TrendingUp, Star
 } from "lucide-react";
 

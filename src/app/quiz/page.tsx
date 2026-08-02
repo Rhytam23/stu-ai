@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, CheckCircle, XCircle, RotateCcw, ChevronRight, Brain } from "lucide-react";
+import { Trophy, CheckCircle, XCircle, RotateCcw, ChevronRight } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 
 interface Question {
@@ -247,7 +247,7 @@ export default function QuizPage() {
   return (
     <div className="relative min-h-screen bg-background text-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-amber-500/5 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-125 bg-linear-to-b from-amber-500/5 to-transparent pointer-events-none" />
 
       <PageHero
         badge="Test Your Knowledge"
@@ -437,7 +437,7 @@ export default function QuizPage() {
                 <div className="pt-4 border-t border-white/10 space-y-2 text-left">
                   {categories.map((cat) => {
                     const catQs = questions.filter((q) => q.category === cat);
-                    const catScore = catQs.filter((q, i) => {
+                    const catScore = catQs.filter((q) => {
                       const qi = questions.indexOf(q);
                       return answers[qi] === q.correct;
                     }).length;

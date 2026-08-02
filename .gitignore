@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -30,8 +31,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files (NEVER commit secrets)
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +42,44 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python virtual environment and caching
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# IDE / Editor
+.idea/
+*.swp
+*.swo
+*~
+.claude/
+scratch/
+
+
+# Security-sensitive files (must never be committed)
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+*.jks
+id_rsa*
+id_ed25519*
+*.pem
+
+# OS artifacts
+Desktop.ini
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Legacy subfolder artifact
+stu-ai/
+

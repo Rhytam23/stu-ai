@@ -37,6 +37,7 @@ export default function Header() {
 
   useEffect(() => {
     const saved = localStorage.getItem("projectorMode") === "true";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setProjectorMode(saved);
     if (saved) {
       document.documentElement.classList.add("projector-mode");
@@ -61,6 +62,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
     setActiveDropdown(null);
   }, [pathname]);
@@ -294,7 +296,7 @@ export default function Header() {
 
       {/* Reading Progress */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 h-[2px] bg-linear-to-r from-accent-primary to-accent-secondary origin-left"
+        className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-accent-primary to-accent-secondary origin-left"
         style={{ scaleX }}
       />
     </header>

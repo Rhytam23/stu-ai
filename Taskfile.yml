@@ -1,0 +1,77 @@
+version: '3'
+
+tasks:
+  bootstrap:
+    desc: Onboard the repository and setup dependencies
+    cmds:
+      - cmd: powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1
+        platforms: [windows]
+      - cmd: ./scripts/bootstrap.sh
+        platforms: [linux, darwin]
+
+  verify:
+    desc: Run environment diagnostics and quality checks
+    cmds:
+      - cmd: powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
+        platforms: [windows]
+      - cmd: ./scripts/verify.sh
+        platforms: [linux, darwin]
+
+  clean:
+    desc: Safely remove caches and temporary folders
+    cmds:
+      - cmd: powershell -ExecutionPolicy Bypass -File .\scripts\clean.ps1
+        platforms: [windows]
+      - cmd: ./scripts/clean.sh
+        platforms: [linux, darwin]
+
+  dev:
+    desc: Run Next.js local development server
+    cmds:
+      - npm run dev
+
+  build:
+    desc: Compile Next.js production build assets
+    cmds:
+      - npm run build
+
+  lint:
+    desc: Execute ESLint rules check
+    cmds:
+      - npm run lint
+
+  test:
+    desc: Run unit testing suite
+    cmds:
+      - npx vitest run
+
+  doctor:
+    desc: Run offline diagnostics report
+    cmds:
+      - cmd: powershell -ExecutionPolicy Bypass -File .\scripts\doctor.ps1
+        platforms: [windows]
+      - cmd: ./scripts/doctor.sh
+        platforms: [linux, darwin]
+
+  "ai:doctor":
+    desc: Verify AI Router registration and configs (offline)
+    cmds:
+      - task: doctor
+
+  "ai:health":
+    desc: Test live API connection latency and keys
+    cmds:
+      - cmd: powershell -ExecutionPolicy Bypass -File .\scripts\ai-health.ps1
+        platforms: [windows]
+      - cmd: ./scripts/ai-health.sh
+        platforms: [linux, darwin]
+
+  "ai:providers":
+    desc: Display AI providers adapters status
+    cmds:
+      - task: doctor
+
+  "ai:test":
+    desc: Run Vitest AI Router unit tests
+    cmds:
+      - npx vitest run src/lib/ai/__tests__/router.test.ts

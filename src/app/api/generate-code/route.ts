@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getModel } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -29,7 +30,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { prompt, language } = body as { prompt: string; language?: string };
+    const { prompt, language, provider } = body as {
+      prompt: string;
+      language?: string;
+      provider?: AIProviderId;
+    };
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
@@ -50,8 +55,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel();
-
     const systemPrompt = `You are an expert software engineer. Generate production-quality ${lang} code based on the user's description.
 
 Rules:
@@ -63,16 +66,18 @@ Rules:
 - Return ONLY the code block, no markdown fences, no extra text
 - The code should be ready to use immediately`;
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nTask: ${prompt}` }] }],
-      generationConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.3,
+    const response = await aiRouter.generate(
+      {
+        messages: [{ role: "user", content: `${systemPrompt}\n\nTask: ${prompt}` }],
+        options: {
+          temperature: 0.3,
+          maxTokens: 4096,
+        },
       },
-    });
+      provider
+    );
 
-    const response = await result.response;
-    let code = response.text().trim();
+    let code = response.content.trim();
 
     // Strip markdown code fences if model added them
     const fenceMatch = code.match(/^```(?:\w+)?\n?([\s\S]*?)```$/);
@@ -85,8 +90,8 @@ Rules:
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/generate-code]", message);
 
-    if (message.includes("API_KEY")) {
-      return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
+      return NextResponse.json({ error: "AI service is not configured. Please check your API keys." }, { status: 503 });
     }
 
     return NextResponse.json(

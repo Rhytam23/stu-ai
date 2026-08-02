@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getModel } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { prompt } = body as { prompt: string };
+    const { prompt, provider } = body as { prompt: string; provider?: AIProviderId };
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
@@ -36,8 +37,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const model = getModel();
 
     const analysisPrompt = `You are an expert prompt engineer teaching students how to write better AI prompts. Analyze this user prompt and rewrite it in three quality tiers.
 
@@ -66,9 +65,19 @@ Return ONLY valid JSON (no markdown, no extra text) in this exact format:
   "keyLessons": ["General lesson about prompt engineering 1", "Lesson 2", "Lesson 3"]
 }`;
 
-    const result = await model.generateContent(analysisPrompt);
-    const response = await result.response;
-    const text = response.text().trim();
+    const response = await aiRouter.generate(
+      {
+        messages: [{ role: "user", content: analysisPrompt }],
+        options: {
+          temperature: 0.3,
+          maxTokens: 4096,
+          responseFormat: "json",
+        },
+      },
+      provider
+    );
+
+    const text = response.content.trim();
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -81,8 +90,8 @@ Return ONLY valid JSON (no markdown, no extra text) in this exact format:
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/improve-prompt]", message);
 
-    if (message.includes("API_KEY")) {
-      return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
+      return NextResponse.json({ error: "AI service is not configured. Please check your API keys." }, { status: 503 });
     }
 
     return NextResponse.json(

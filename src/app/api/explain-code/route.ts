@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getModel } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -27,7 +28,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { code, language } = body as { code: string; language: string };
+    const { code, language, provider } = body as {
+      code: string;
+      language: string;
+      provider?: AIProviderId;
+    };
 
     if (!code || typeof code !== "string" || code.trim().length === 0) {
       return NextResponse.json(
@@ -50,8 +55,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const model = getModel();
 
     const prompt = `You are an expert ${lang} developer and computer science educator. Analyze the following ${lang} code and provide a structured explanation.
 
@@ -76,9 +79,19 @@ Code to analyze:
 ${code}
 \`\`\``;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
+    const response = await aiRouter.generate(
+      {
+        messages: [{ role: "user", content: prompt }],
+        options: {
+          temperature: 0.3,
+          maxTokens: 4096,
+          responseFormat: "json",
+        },
+      },
+      provider
+    );
+
+    const text = response.content.trim();
 
     // Extract JSON from response (handle cases where model wraps it in markdown)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -92,9 +105,9 @@ ${code}
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/explain-code]", message);
 
-    if (message.includes("API_KEY")) {
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
       return NextResponse.json(
-        { error: "Server configuration error." },
+        { error: "AI service is not configured. Please check your API keys." },
         { status: 503 }
       );
     }

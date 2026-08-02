@@ -123,7 +123,6 @@ const DIMENSIONS = [
 type Category = "All" | "General AI" | "IDE Assistant" | "Code Specialist";
 
 export default function ComparisonPage() {
-  const [selected, setSelected] = useState<Set<string>>(new Set(tools.map((t) => t.name)));
   const [filterCategory, setFilterCategory] = useState<Category>("All");
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
 
@@ -131,22 +130,12 @@ export default function ComparisonPage() {
     (t) => filterCategory === "All" || t.category === filterCategory
   );
 
-  const toggleSelect = (name: string) => {
-    const next = new Set(selected);
-    if (next.has(name)) {
-      if (next.size > 1) next.delete(name);
-    } else {
-      next.add(name);
-    }
-    setSelected(next);
-  };
 
-  const visibleTools = filteredTools.filter((t) => selected.has(t.name));
 
   return (
     <div className="relative min-h-screen bg-background text-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-125 bg-linear-to-b from-emerald-500/5 to-transparent pointer-events-none" />
 
       <PageHero
         badge="AI Tools"

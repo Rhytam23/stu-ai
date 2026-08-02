@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Trash2, Bot, User, AlertCircle } from "lucide-react";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import LoadingDots from "@/components/ui/LoadingDots";
+import ProviderSelector, { AIProviderId } from "./ProviderSelector";
 
 export interface Message {
   id: string;
@@ -30,6 +31,7 @@ export default function ChatInterface({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [provider, setProvider] = useState<AIProviderId>("gemini");
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -71,6 +73,7 @@ export default function ChatInterface({
             content: m.content,
           })),
           systemPrompt,
+          provider,
         }),
       });
 
@@ -114,7 +117,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-[600px] glass-panel rounded-2xl overflow-hidden">
+    <div className="flex flex-col h-150 glass-panel rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-white/5">
         <div className="flex items-center gap-2.5">
@@ -125,19 +128,24 @@ export default function ChatInterface({
             <p className="text-sm font-semibold text-white">{title}</p>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-text-muted">Powered by Gemini</span>
+              <span className="text-xs text-text-muted">
+                {provider === "gemini" ? "Powered by Gemini" : provider === "openai" ? "Powered by ChatGPT" : "Powered by Claude"}
+              </span>
             </div>
           </div>
         </div>
-        {messages.length > 0 && (
-          <button
-            onClick={clearChat}
-            className="flex items-center gap-1.5 text-xs text-text-muted hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Clear
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          <ProviderSelector selectedProvider={provider} onChange={setProvider} />
+          {messages.length > 0 && (
+            <button
+              onClick={clearChat}
+              className="flex items-center gap-1.5 text-xs text-text-muted hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
@@ -238,7 +246,7 @@ export default function ChatInterface({
             placeholder={placeholder}
             rows={1}
             disabled={loading}
-            className="flex-1 resize-none bg-transparent text-white placeholder-text-muted text-sm leading-relaxed focus:outline-none disabled:opacity-50 min-h-[36px] max-h-[160px] py-2"
+            className="flex-1 resize-none bg-transparent text-white placeholder-text-muted text-sm leading-relaxed focus:outline-none disabled:opacity-50 min-h-9 max-h-40 py-2"
           />
           <button
             onClick={sendMessage}

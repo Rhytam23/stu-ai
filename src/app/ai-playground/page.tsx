@@ -12,6 +12,7 @@ import {
 import PageHero from "@/components/ui/PageHero";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import LoadingDots from "@/components/ui/LoadingDots";
+import ProviderSelector, { AIProviderId } from "@/components/features/ProviderSelector";
 
 // ─── Lazy-load Monaco ─────────────────────────────────────────────────────────
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -176,6 +177,7 @@ export default function AIPlaygroundPage() {
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [streamedText, setStreamedText] = useState("");
+  const [provider, setProvider] = useState<AIProviderId>("gemini");
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<ChatMessage[]>([]);
@@ -350,6 +352,7 @@ export default function AIPlaygroundPage() {
           language: activeTab.language,
           action: activeAction,
           targetLanguage: activeAction === "convert" ? targetLanguage : undefined,
+          provider,
         }),
         signal: ctrl.signal,
       });
@@ -412,7 +415,7 @@ export default function AIPlaygroundPage() {
   return (
     <div className="relative min-h-screen bg-background text-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-accent-primary/8 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-125 bg-linear-to-b from-accent-primary/8 to-transparent pointer-events-none" />
 
       <PageHero
         badge="AI Code Playground"
@@ -446,7 +449,7 @@ export default function AIPlaygroundPage() {
                     onClick={() => setActiveTabId(tab.id)}
                   >
                     <FileText className="w-3 h-3 shrink-0" />
-                    <span className="max-w-[100px] truncate">{tab.name}</span>
+                    <span className="max-w-25 truncate">{tab.name}</span>
                     {!tab.saved && <span className="w-1.5 h-1.5 rounded-full bg-accent-primary shrink-0" title="Unsaved" />}
                     {tabs.length > 1 && (
                       <button
@@ -691,7 +694,8 @@ export default function AIPlaygroundPage() {
               </AnimatePresence>
 
               {/* Run / Stop */}
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <ProviderSelector selectedProvider={provider} onChange={setProvider} />
                 <button
                   onClick={handleAnalyze}
                   disabled={!activeTab?.content?.trim() || loading}
@@ -733,7 +737,9 @@ export default function AIPlaygroundPage() {
             <div className="glass-panel rounded-2xl p-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Wand2 className="w-4 h-4 text-accent-secondary" />
-                <span className="text-sm font-semibold text-white">Gemini AI Response</span>
+                <span className="text-sm font-semibold text-white">
+                  {provider === "gemini" ? "Gemini" : provider === "openai" ? "ChatGPT" : "Claude"} Response
+                </span>
                 {streaming && (
                   <span className="flex items-center gap-1 text-xs text-accent-primary">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent-primary animate-pulse" />

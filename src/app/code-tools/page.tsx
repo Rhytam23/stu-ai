@@ -6,6 +6,7 @@ import { Code2, Wand2, AlertCircle, CheckCircle, Clock, Zap, Bug, Star } from "l
 import PageHero from "@/components/ui/PageHero";
 import CodeBlock from "@/components/ui/CodeBlock";
 import LoadingDots from "@/components/ui/LoadingDots";
+import ProviderSelector, { AIProviderId } from "@/components/features/ProviderSelector";
 
 const LANGUAGES = ["python", "javascript", "typescript", "java", "c", "cpp"] as const;
 type Language = typeof LANGUAGES[number];
@@ -98,7 +99,7 @@ vector<int> twoSum(vector<int>& nums, int target) {
 
 // ─── Code Explainer ─────────────────────────────────────────────────────────
 
-function CodeExplainer() {
+function CodeExplainer({ provider }: { provider: AIProviderId }) {
   const [language, setLanguage] = useState<Language>("python");
   const [code, setCode] = useState(EXAMPLE_CODES.python);
   const [result, setResult] = useState<ExplainResult | null>(null);
@@ -121,7 +122,7 @@ function CodeExplainer() {
       const res = await fetch("/api/explain-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, language }),
+        body: JSON.stringify({ code, language, provider }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to analyze.");
@@ -263,7 +264,7 @@ function CodeExplainer() {
 
 // ─── Code Generator ──────────────────────────────────────────────────────────
 
-function CodeGenerator() {
+function CodeGenerator({ provider }: { provider: AIProviderId }) {
   const [language, setLanguage] = useState<GenLanguage>("python");
   const [prompt, setPrompt] = useState("");
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
@@ -279,7 +280,7 @@ function CodeGenerator() {
       const res = await fetch("/api/generate-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, language }),
+        body: JSON.stringify({ prompt, language, provider }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate code.");
@@ -383,11 +384,12 @@ type ActiveTab = "explainer" | "generator";
 
 export default function CodeToolsPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("explainer");
+  const [provider, setProvider] = useState<AIProviderId>("gemini");
 
   return (
     <div className="relative min-h-screen bg-background text-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-125 bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
 
       <PageHero
         badge="AI Tools"
@@ -398,28 +400,31 @@ export default function CodeToolsPage() {
       />
 
       <div className="max-w-5xl mx-auto px-6 pb-32 space-y-6">
-        {/* Tab selector */}
-        <div className="flex gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-fit">
-          <button
-            onClick={() => setActiveTab("explainer")}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-              activeTab === "explainer"
-                ? "bg-accent-primary text-white shadow-[0_0_20px_rgba(110,231,255,0.25)]"
-                : "text-text-muted hover:text-white"
-            }`}
-          >
-            <Zap className="w-4 h-4" /> Code Explainer
-          </button>
-          <button
-            onClick={() => setActiveTab("generator")}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-              activeTab === "generator"
-                ? "bg-accent-secondary text-white shadow-[0_0_20px_rgba(139,92,246,0.25)]"
-                : "text-text-muted hover:text-white"
-            }`}
-          >
-            <Wand2 className="w-4 h-4" /> Code Generator
-          </button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Tab selector */}
+          <div className="flex gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-fit">
+            <button
+              onClick={() => setActiveTab("explainer")}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === "explainer"
+                  ? "bg-accent-primary text-white shadow-[0_0_20px_rgba(110,231,255,0.25)]"
+                  : "text-text-muted hover:text-white"
+              }`}
+            >
+              <Zap className="w-4 h-4" /> Code Explainer
+            </button>
+            <button
+              onClick={() => setActiveTab("generator")}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === "generator"
+                  ? "bg-accent-secondary text-white shadow-[0_0_20px_rgba(139,92,246,0.25)]"
+                  : "text-text-muted hover:text-white"
+              }`}
+            >
+              <Wand2 className="w-4 h-4" /> Code Generator
+            </button>
+          </div>
+          <ProviderSelector selectedProvider={provider} onChange={setProvider} />
         </div>
 
         {/* Tab Content */}
@@ -432,7 +437,11 @@ export default function CodeToolsPage() {
             transition={{ duration: 0.2 }}
             className="glass-panel rounded-2xl p-6"
           >
-            {activeTab === "explainer" ? <CodeExplainer /> : <CodeGenerator />}
+            {activeTab === "explainer" ? (
+              <CodeExplainer provider={provider} />
+            ) : (
+              <CodeGenerator provider={provider} />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

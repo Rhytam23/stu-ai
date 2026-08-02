@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getModel } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -29,9 +30,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, systemPrompt } = body as {
+    const { messages, systemPrompt, provider } = body as {
       messages: Message[];
       systemPrompt?: string;
+      provider?: AIProviderId;
     };
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -63,38 +65,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = getModel();
-
     const defaultSystem = `You are an expert AI assistant specializing in artificial intelligence, machine learning, programming, and software engineering. 
 Provide clear, accurate, and educational responses. Format code blocks with proper markdown syntax highlighting.
 When explaining concepts, be thorough but accessible. When writing code, ensure it is production-quality, well-commented, and follows best practices.`;
 
-    const history = messages.slice(0, -1).map((msg) => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }],
+    const aiMessages = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
     }));
 
-    const chat = model.startChat({
-      history,
-      generationConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.7,
+    const response = await aiRouter.generate(
+      {
+        messages: aiMessages,
+        options: {
+          systemInstruction: systemPrompt ?? defaultSystem,
+          temperature: 0.7,
+          maxTokens: 4096,
+        },
       },
-      systemInstruction: systemPrompt ?? defaultSystem,
-    });
+      provider
+    );
 
-    const result = await chat.sendMessage(lastMessage.content);
-    const response = await result.response;
-    const text = response.text();
-
-    return NextResponse.json({ content: text });
+    return NextResponse.json({ content: response.content });
   } catch (err) {
     const message = err instanceof Error ? err.message : "An unexpected error occurred.";
     console.error("[/api/chat]", message);
 
-    if (message.includes("API_KEY")) {
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
       return NextResponse.json(
-        { error: "Server configuration error. The Gemini API key is not set." },
+        { error: "AI service is not configured. Please check your API keys." },
         { status: 503 }
       );
     }

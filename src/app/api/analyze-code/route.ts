@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getModel } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { buildPrompt, VALID_ACTIONS, type Action } from "@/lib/code-analysis";
 
@@ -25,11 +26,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { code, language, action, targetLanguage } = body as {
+    const { code, language, action, targetLanguage, provider } = body as {
       code: string;
       language: string;
       action: Action;
       targetLanguage?: string;
+      provider?: AIProviderId;
     };
 
     if (!code || typeof code !== "string" || code.trim().length === 0) {
@@ -51,24 +53,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid action." }, { status: 400 });
     }
 
-    const model = getModel();
     const prompt = buildPrompt(action, code, language, targetLanguage);
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 4096, temperature: 0.3 },
-    });
+    const response = await aiRouter.generate(
+      {
+        messages: [{ role: "user", content: prompt }],
+        options: {
+          temperature: 0.3,
+          maxTokens: 4096,
+        },
+      },
+      provider
+    );
 
-    const response = await result.response;
-    const text = response.text();
+    const text = response.content;
 
     return NextResponse.json({ result: text, action, language });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/analyze-code]", message);
 
-    if (message.includes("API_KEY")) {
-      return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
+      return NextResponse.json({ error: "AI service is not configured. Please check your API keys." }, { status: 503 });
     }
 
     return NextResponse.json(

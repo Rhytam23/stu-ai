@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Sparkles, ArrowRight, Brain, History, Cpu, MessageSquare,
+  ArrowRight, Brain, History, Cpu, MessageSquare,
   Code2, Wand2, BarChart2, Trophy, Rocket, ChevronRight
 } from "lucide-react";
-import CursorGlow from "@/components/CursorGlow";
+import CursorGlow from "@/components/layout/CursorGlow";
 
 const stats = [
   { value: "90%", label: "Developer Productivity Gain" },
@@ -102,65 +102,55 @@ const toolCards = [
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   return (
     <div className="relative min-h-screen bg-background text-white overflow-hidden">
       {/* Background */}
-      <div className="absolute top-0 left-0 right-0 h-[1000px] bg-linear-to-b from-accent-secondary/10 via-background/0 to-background pointer-events-none" />
-      <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-accent-primary/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-accent-secondary/5 blur-[140px] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-250 h-100 bg-linear-to-b from-accent-primary/10 to-transparent blur-[120px] pointer-events-none" />
+
       <CursorGlow />
 
-      {/* Hero */}
-      <section className="relative pt-36 pb-24 md:pt-52 md:pb-36 flex items-center justify-center min-h-[90vh]">
-        <div className="max-w-7xl mx-auto px-6 text-center space-y-8 relative z-10">
+      {/* Hero Section */}
+      <section className="relative max-w-7xl mx-auto px-6 pt-32 pb-24 text-center">
+        <div className="flex flex-col items-center justify-center gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10"
+            transition={{ duration: 0.5 }}
           >
-            <Sparkles className="w-4 h-4 text-accent-primary animate-pulse" />
             <span className="text-xs font-semibold tracking-wider text-text-muted uppercase">
-              Interactive Educational AI Portal
+              Synapse AI Portal
             </span>
           </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display font-bold text-5xl sm:text-6xl md:text-8xl tracking-tight leading-[1.05] max-w-5xl mx-auto bg-clip-text text-transparent bg-linear-to-b from-white via-white to-text-muted/50"
           >
-            Learn AI.{" "}
-            <span className="bg-clip-text text-transparent bg-linear-to-r from-accent-primary via-accent-secondary to-accent-primary bg-size-[200%] animate-pulse-slow">
-              Use AI.
-            </span>
-            <br className="hidden md:inline" />
-            Understand the Future.
+            Explore the Science <br /> of Intelligence
           </motion.h1>
-
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
           >
-            Explore the complete story of artificial intelligence — from the 1950s to today — and interact with live AI tools powered by Google Gemini.
+            An interactive educational space exploring the history, core math, and practical tools of Artificial Intelligence.
           </motion.p>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-wrap justify-center gap-4"
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex flex-wrap items-center justify-center gap-4 mt-4"
           >
             <Link
               href="/playground"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold bg-linear-to-r from-accent-primary/80 to-accent-secondary/80 hover:from-accent-primary hover:to-accent-secondary text-white transition-all duration-300 shadow-[0_0_30px_rgba(110,231,255,0.2)] hover:shadow-[0_0_40px_rgba(110,231,255,0.35)]"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold bg-accent-primary text-background hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(110,231,255,0.25)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]"
             >
               Try AI Playground <ArrowRight className="w-4 h-4" />
             </Link>
@@ -185,7 +175,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: i * 0.08 }}
             className="glass-panel glass-panel-hover rounded-2xl p-6 text-center"
           >
-            <p className="font-display font-bold text-3xl md:text-4xl text-white">{stat.value}</p>
+            <p className="font-display font-bold text-3xl md:text-4xl text-white tracking-wider">{stat.value}</p>
             <p className="text-text-muted text-xs mt-2 leading-tight">{stat.label}</p>
           </motion.div>
         ))}
@@ -204,7 +194,7 @@ export default function Home() {
             Learn the Fundamentals
           </h2>
           <p className="text-text-muted mt-2 max-w-xl">
-            Deep-dive into AI concepts — from history to the cutting-edge models powering today's tools.
+            Deep-dive into AI concepts — from history to the cutting-edge models powering today&apos;s tools.
           </p>
         </motion.div>
 

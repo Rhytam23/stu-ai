@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { getGeminiClient } from "@/lib/gemini";
+import { aiRouter } from "@/lib/ai/router";
+import { AIProviderId } from "@/lib/ai/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { buildPrompt, VALID_ACTIONS, type Action } from "@/lib/code-analysis";
 
@@ -23,7 +24,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { code?: string; language?: string; action?: Action; targetLanguage?: string };
+  let body: {
+    code?: string;
+    language?: string;
+    action?: Action;
+    targetLanguage?: string;
+    provider?: AIProviderId;
+  };
   try {
     body = await req.json();
   } catch {
@@ -33,7 +40,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { code, language, action, targetLanguage } = body;
+  const { code, language, action, targetLanguage, provider } = body;
 
   if (!code || code.trim().length === 0) {
     return new Response(JSON.stringify({ error: "Code is required." }), {
@@ -57,48 +64,34 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const client = getGeminiClient();
-    const model = client.getGenerativeModel({ model: "gemini-3.5-flash" });
     const prompt = buildPrompt(action, code, language, targetLanguage);
-
-    const streamResult = await model.generateContentStream({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 4096, temperature: 0.3 },
-    });
-
-    const encoder = new TextEncoder();
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of streamResult.stream) {
-            const text = chunk.text();
-            if (text) {
-              controller.enqueue(encoder.encode(text));
-            }
-          }
-        } catch (e) {
-          controller.error(e);
-        } finally {
-          controller.close();
-        }
+    const stream = await aiRouter.generateStream(
+      {
+        messages: [{ role: "user", content: prompt }],
+        options: {
+          temperature: 0.3,
+          maxTokens: 4096,
+        },
       },
-    });
+      provider
+    );
 
     return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Transfer-Encoding": "chunked",
-        "Cache-Control": "no-cache, no-store",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
         "X-Accel-Buffering": "no",
+        "X-Content-Type-Options": "nosniff",
+        "Connection": "keep-alive",
       },
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/stream-analyze]", message);
 
-    if (message.includes("API_KEY")) {
-      return new Response(JSON.stringify({ error: "Server configuration error." }), {
+    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
+      return new Response(JSON.stringify({ error: "AI service is not configured. Please check your API keys." }), {
         status: 503,
         headers: { "Content-Type": "application/json" },
       });

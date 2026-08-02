@@ -1,0 +1,51 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DEFAULT_AI_PROVIDER: gemini
+      GEMINI_API_KEY: ci-placeholder-key-not-real
+      OPENAI_API_KEY: ci-placeholder-key-not-real
+      ANTHROPIC_API_KEY: ci-placeholder-key-not-real
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Verification
+        run: npm run lint
+
+      - name: TypeScript Compile Check
+        run: npx tsc --noEmit
+
+      - name: Run Unit Tests
+        run: npx vitest run
+
+      - name: Production Build
+        run: npm run build
+
+      - name: Security Audit (Advisory Only)
+        run: npm audit --audit-level=critical || true
+        continue-on-error: true

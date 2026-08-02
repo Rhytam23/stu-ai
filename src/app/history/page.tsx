@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Snowflake, ChevronDown } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import GlassCard from "@/components/ui/GlassCard";
-import InteractiveTimeline from "@/components/InteractiveTimeline";
-import type { Metadata } from "next";
+import InteractiveTimeline from "@/components/features/InteractiveTimeline";
+
 
 // Note: metadata must be in a server component, so we handle it via the layout pattern
 export const dynamic = "force-static";
@@ -60,7 +60,7 @@ export default function HistoryPage() {
   return (
     <div className="relative min-h-screen bg-background text-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-125 bg-linear-to-b from-accent-secondary/8 to-transparent pointer-events-none" />
 
       <PageHero
         badge="The Full Story"
