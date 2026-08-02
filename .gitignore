@@ -83,3 +83,9 @@ ehthumbs.db
 # Legacy subfolder artifact
 stu-ai/
 
+# AI Agents & Planning (local-only, must never be committed)
+.agents/
+.planning/
+.gsd/
+.gemini/
+

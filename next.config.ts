@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["openai", "@anthropic-ai/sdk", "@google/generative-ai"],
+  experimental: {
+    useTypeScriptCli: true,
+  },
   headers: async () => [
     {
       source: "/(.*)",
