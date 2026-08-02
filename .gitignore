@@ -84,6 +84,7 @@ ehthumbs.db
 stu-ai/
 
 # AI Agents & Planning (local-only, must never be committed)
+CLAUDE.md
 .agents/
 .planning/
 .gsd/
