@@ -105,9 +105,17 @@ ${code}
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/explain-code]", message);
 
-    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
+    const isKeyOrQuotaError =
+      message.toLowerCase().includes("api key") ||
+      message.toLowerCase().includes("api_key") ||
+      message.toLowerCase().includes("quota") ||
+      message.toLowerCase().includes("credit") ||
+      message.toLowerCase().includes("billing") ||
+      message.toLowerCase().includes("balance");
+
+    if (isKeyOrQuotaError) {
       return NextResponse.json(
-        { error: "AI service is not configured. Please check your API keys." },
+        { error: message },
         { status: 503 }
       );
     }

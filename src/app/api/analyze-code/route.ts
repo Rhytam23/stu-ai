@@ -73,8 +73,16 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Unexpected error.";
     console.error("[/api/analyze-code]", message);
 
-    if (message.toLowerCase().includes("api key") || message.toLowerCase().includes("api_key")) {
-      return NextResponse.json({ error: "AI service is not configured. Please check your API keys." }, { status: 503 });
+    const isKeyOrQuotaError =
+      message.toLowerCase().includes("api key") ||
+      message.toLowerCase().includes("api_key") ||
+      message.toLowerCase().includes("quota") ||
+      message.toLowerCase().includes("credit") ||
+      message.toLowerCase().includes("billing") ||
+      message.toLowerCase().includes("balance");
+
+    if (isKeyOrQuotaError) {
+      return NextResponse.json({ error: message }, { status: 503 });
     }
 
     return NextResponse.json(
