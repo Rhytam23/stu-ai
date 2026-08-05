@@ -16,7 +16,7 @@ const PROVIDERS: ProviderOption[] = [
   {
     id: "gemini",
     name: "Gemini",
-    badge: "1.5 Flash",
+    badge: "3.5 Flash",
     desc: "Google's fast, multimodal frontier model",
   },
   {
