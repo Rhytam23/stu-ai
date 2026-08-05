@@ -106,8 +106,10 @@ export default function ChatInterface({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+      if (window.innerWidth >= 768) {
+        e.preventDefault();
+        sendMessage();
+      }
     }
   };
 
@@ -117,7 +119,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-150 glass-panel rounded-2xl overflow-hidden">
+    <div className="flex flex-col h-[500px] md:h-150 glass-panel rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-white/5">
         <div className="flex items-center gap-2.5">

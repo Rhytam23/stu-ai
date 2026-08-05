@@ -23,11 +23,11 @@ export default function CollaborationSplit() {
   return (
     <div className="max-w-6xl mx-auto px-4">
       {/* Switch Tabs */}
-      <div className="flex justify-center mb-12">
-        <div className="bg-bg-secondary p-1 rounded-full border border-white/5 flex">
+      <div className="flex justify-center mb-12 w-full">
+        <div className="bg-bg-secondary p-1 rounded-full border border-white/5 flex w-full max-w-md">
           <button
             onClick={() => setActiveTab("split")}
-            className={`px-6 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${
+            className={`flex-1 text-center py-2 px-2 md:px-6 rounded-full text-[10px] sm:text-xs font-semibold transition-all duration-300 ${
               activeTab === "split"
                 ? "bg-linear-to-r from-accent-secondary to-accent-primary text-white"
                 : "text-text-muted hover:text-white"
@@ -37,7 +37,7 @@ export default function CollaborationSplit() {
           </button>
           <button
             onClick={() => setActiveTab("workflow")}
-            className={`px-6 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${
+            className={`flex-1 text-center py-2 px-2 md:px-6 rounded-full text-[10px] sm:text-xs font-semibold transition-all duration-300 ${
               activeTab === "workflow"
                 ? "bg-linear-to-r from-accent-secondary to-accent-primary text-white"
                 : "text-text-muted hover:text-white"

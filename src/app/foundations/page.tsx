@@ -99,12 +99,12 @@ export default function FoundationsPage() {
 
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-6 pb-8">
-        <div className="flex gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-fit">
+        <div className="flex overflow-x-auto whitespace-nowrap scrollbar-none gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-fit max-w-full">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 activeTab === tab
                   ? "bg-accent-secondary text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
                   : "text-text-muted hover:text-white"

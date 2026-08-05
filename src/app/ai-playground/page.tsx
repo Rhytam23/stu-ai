@@ -159,6 +159,14 @@ function saveTabs(tabs: FileTab[]) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function AIPlaygroundPage() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const [tabs, setTabs] = useState<FileTab[]>(() => {
     const saved = loadTabs();
     if (saved.length > 0) return saved;
@@ -592,33 +600,43 @@ export default function AIPlaygroundPage() {
               </div>
             </div>
 
-            {/* ── Monaco Editor ── */}
+            {/* ── Monaco Editor / Mobile Textarea Fallback ── */}
             <div className="glass-panel rounded-2xl overflow-hidden" style={{ height: "400px" }}>
-              <MonacoEditor
-                key={activeTabId}
-                height="400px"
-                language={activeTab?.monacoLang || "python"}
-                value={activeTab?.content || ""}
-                onChange={(val) => updateActiveCode(val ?? "")}
-                theme="vs-dark"
-                options={{
-                  fontSize: 13,
-                  lineHeight: 1.65,
-                  fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  padding: { top: 16, bottom: 16 },
-                  renderLineHighlight: "gutter",
-                  smoothScrolling: true,
-                  cursorBlinking: "smooth",
-                  wordWrap: "on",
-                  formatOnPaste: true,
-                  automaticLayout: true,
-                  suggestOnTriggerCharacters: true,
-                  tabSize: 2,
-                  insertSpaces: true,
-                }}
-              />
+              {isMobile ? (
+                <textarea
+                  className="w-full h-full p-4 bg-[#0d1117] text-white font-mono text-xs focus:outline-none resize-none leading-relaxed"
+                  value={activeTab?.content || ""}
+                  onChange={(e) => updateActiveCode(e.target.value)}
+                  placeholder="Write or paste your code here..."
+                  spellCheck={false}
+                />
+              ) : (
+                <MonacoEditor
+                  key={activeTabId}
+                  height="400px"
+                  language={activeTab?.monacoLang || "python"}
+                  value={activeTab?.content || ""}
+                  onChange={(val) => updateActiveCode(val ?? "")}
+                  theme="vs-dark"
+                  options={{
+                    fontSize: 13,
+                    lineHeight: 1.65,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    padding: { top: 16, bottom: 16 },
+                    renderLineHighlight: "gutter",
+                    smoothScrolling: true,
+                    cursorBlinking: "smooth",
+                    wordWrap: "on",
+                    formatOnPaste: true,
+                    automaticLayout: true,
+                    suggestOnTriggerCharacters: true,
+                    tabSize: 2,
+                    insertSpaces: true,
+                  }}
+                />
+              )}
             </div>
 
             {/* ── AI Action Panel ── */}

@@ -20,9 +20,9 @@ export class GeminiProvider extends BaseProvider {
   }
 
   private getModelName(): string {
-    // If responseFormat is json, we must use gemini-1.5-pro or 1.5-flash which support it.
-    // gemini-1.5-flash is our default.
-    return "gemini-1.5-flash";
+    // If responseFormat is json, we must use gemini-3.5-pro or 3.5-flash which support it.
+    // gemini-3.5-flash is our default.
+    return "gemini-3.5-flash";
   }
 
   async generate(payload: GeneratePayload): Promise<GenerateResponse> {

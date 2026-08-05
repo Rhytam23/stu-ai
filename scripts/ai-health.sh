@@ -58,7 +58,7 @@ test_gemini() {
     latency=$(curl -s -o /dev/null -w "%{time_total}" -X POST \
       -H "Content-Type: application/json" \
       -d '{"contents":[{"parts":[{"text":"ping"}]}]}' \
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY")
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=$GEMINI_API_KEY")
     
     if [ $? -eq 0 ] && [ -n "$latency" ]; then
         log_success "Gemini: Connected successfully (Latency: ${latency}s)"

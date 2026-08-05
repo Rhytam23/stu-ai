@@ -101,14 +101,14 @@ export default function HistoryPage() {
           <p className="text-text-muted">The boom-bust cycles that shaped modern AI</p>
         </motion.div>
 
-        <GlassCard className="p-8">
+        <GlassCard className="p-5 md:p-8">
           <div className="flex items-end gap-2 h-48 relative">
             <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between pr-2">
               {[100, 75, 50, 25, 0].map((v) => (
                 <span key={v} className="text-xs text-text-muted">{v}%</span>
               ))}
             </div>
-            <div className="flex-1 flex items-end gap-1 md:gap-2 pl-8">
+            <div className="flex-1 flex items-end gap-1 md:gap-2 pl-6 md:pl-8">
               {fundingData.map((d, i) => (
                 <motion.div
                   key={d.year}
@@ -128,7 +128,7 @@ export default function HistoryPage() {
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 border border-white/10 rounded px-2 py-1 text-xs text-white whitespace-nowrap z-10">
                     {d.label}
                   </div>
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] text-text-muted whitespace-nowrap">
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] text-text-muted whitespace-nowrap md:rotate-0 -rotate-45 origin-center mt-1">
                     {d.year}
                   </div>
                 </motion.div>

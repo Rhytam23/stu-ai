@@ -135,7 +135,7 @@ def check_api_keys():
             print("  Testing Gemini API connectivity...")
             try:
                 genai.configure(api_key=gemini_key)
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                model = genai.GenerativeModel("gemini-3.5-flash")
                 response = model.generate_content("Ping")
                 if response.text:
                     print("  [OK] Gemini API handshake: SUCCESS")

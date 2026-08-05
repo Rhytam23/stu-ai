@@ -241,14 +241,14 @@ export default function Header() {
 
         {/* Mobile toggle */}
         <button
-          className="lg:hidden p-2 text-white hover:text-accent-primary transition-colors"
+          className="lg:hidden p-2.5 text-white hover:text-accent-primary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
-
+ 
       {/* Mobile Nav */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -256,25 +256,25 @@ export default function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="lg:hidden absolute top-full left-0 right-0 bg-background/95 border-b border-white/5 backdrop-blur-lg py-4 px-6 flex flex-col gap-1"
+            className="lg:hidden absolute top-full left-0 right-0 bg-background/95 border-b border-white/5 backdrop-blur-lg py-4 px-6 flex flex-col gap-1 max-h-[85vh] overflow-y-auto"
           >
-            <Link href="/" className="py-2 text-sm text-text-muted hover:text-white transition-colors border-b border-white/5 pb-3 mb-1">
+            <Link href="/" className="h-11 flex items-center text-sm text-text-muted hover:text-white transition-colors border-b border-white/5 mb-1">
               Home
             </Link>
             <p className="text-xs text-accent-primary font-semibold uppercase tracking-wider py-1">Learn</p>
             {learnLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="py-2 pl-3 text-sm text-text-muted hover:text-white transition-colors">
+              <Link key={l.href} href={l.href} className="h-10 flex items-center pl-3 text-sm text-text-muted hover:text-white transition-colors">
                 {l.name}
               </Link>
             ))}
             <p className="text-xs text-accent-primary font-semibold uppercase tracking-wider py-1 mt-2">AI Tools</p>
             {toolLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="py-2 pl-3 text-sm text-text-muted hover:text-white transition-colors">
+              <Link key={l.href} href={l.href} className="h-10 flex items-center pl-3 text-sm text-text-muted hover:text-white transition-colors">
                 {l.name}
               </Link>
             ))}
-            <Link href="/future" className="py-2 text-sm text-text-muted hover:text-white transition-colors border-t border-white/5 mt-1 pt-3">Future</Link>
-            <Link href="/about" className="py-2 text-sm text-text-muted hover:text-white transition-colors">About</Link>
+            <Link href="/future" className="h-11 flex items-center text-sm text-text-muted hover:text-white transition-colors border-t border-white/5 mt-1">Future</Link>
+            <Link href="/about" className="h-11 flex items-center text-sm text-text-muted hover:text-white transition-colors">About</Link>
             <button
               onClick={toggleProjectorMode}
               className={`w-full py-2.5 rounded-full text-sm font-semibold border flex items-center justify-center gap-1.5 transition-all duration-300 mt-2 ${

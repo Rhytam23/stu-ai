@@ -170,7 +170,7 @@ export default function PromptLabPage() {
               <button
                 key={ex}
                 onClick={() => setPrompt(ex)}
-                className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+                className="text-xs px-3.5 py-2 md:py-1.5 rounded-full bg-white/5 border border-white/10 text-text-muted hover:text-white hover:bg-white/10 transition-colors min-h-[38px] md:min-h-[32px]"
               >
                 {ex}
               </button>

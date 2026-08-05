@@ -34,9 +34,9 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass-panel rounded-3xl p-10 border border-accent-primary/10"
+          className="glass-panel rounded-3xl p-6 sm:p-10 border border-accent-primary/10"
         >
-          <h2 className="font-display font-bold text-3xl text-white mb-6">Our Mission</h2>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl text-white mb-6">Our Mission</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <p className="text-text-muted leading-relaxed">
@@ -48,8 +48,8 @@ export default function AboutPage() {
             </div>
             <div className="space-y-3">
               {projectInfo.map((item) => (
-                <div key={item.label} className="flex gap-3 p-3 rounded-xl bg-white/5 border border-white/8">
-                  <span className="text-xs font-semibold text-accent-primary w-28 shrink-0">{item.label}</span>
+                <div key={item.label} className="flex flex-col sm:flex-row gap-1.5 sm:gap-3 p-3 rounded-xl bg-white/5 border border-white/8">
+                  <span className="text-xs font-semibold text-accent-primary w-auto sm:w-28 sm:shrink-0">{item.label}</span>
                   <span className="text-xs text-text-muted leading-relaxed">{item.value}</span>
                 </div>
               ))}
@@ -68,7 +68,7 @@ export default function AboutPage() {
                 This project implements real backend security. API keys never reach the browser.
               </p>
             </div>
-            <div className="md:col-span-2 font-mono text-xs text-text-muted bg-[#0d1117] rounded-xl p-4 border border-white/8 leading-loose">
+            <div className="md:col-span-2 font-mono text-xs text-text-muted bg-[#0d1117] rounded-xl p-4 border border-white/8 leading-loose overflow-x-auto whitespace-nowrap sm:whitespace-normal">
               <span className="text-accent-primary">Browser</span> (no API keys)<br />
               {'  '}↓ fetch(&apos;/api/chat&apos;, {'{'}messages{'}'}) <br />
               <span className="text-accent-secondary">Next.js API Route</span> (server-only)<br />

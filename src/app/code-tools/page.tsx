@@ -402,10 +402,10 @@ export default function CodeToolsPage() {
       <div className="max-w-5xl mx-auto px-6 pb-32 space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Tab selector */}
-          <div className="flex gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-fit">
+          <div className="grid grid-cols-2 sm:flex gap-2 p-1.5 bg-white/5 border border-white/10 rounded-xl w-full sm:w-fit">
             <button
               onClick={() => setActiveTab("explainer")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full sm:w-auto ${
                 activeTab === "explainer"
                   ? "bg-accent-primary text-white shadow-[0_0_20px_rgba(110,231,255,0.25)]"
                   : "text-text-muted hover:text-white"
@@ -415,7 +415,7 @@ export default function CodeToolsPage() {
             </button>
             <button
               onClick={() => setActiveTab("generator")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full sm:w-auto ${
                 activeTab === "generator"
                   ? "bg-accent-secondary text-white shadow-[0_0_20px_rgba(139,92,246,0.25)]"
                   : "text-text-muted hover:text-white"

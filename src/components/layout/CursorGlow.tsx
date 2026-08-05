@@ -25,7 +25,7 @@ export default function CursorGlow() {
 
   return (
     <motion.div
-      className="pointer-events-none fixed z-30 h-[500px] w-[500px] rounded-full bg-radial from-accent-primary/5 via-accent-secondary/5 to-transparent blur-[80px]"
+      className="hidden lg:block pointer-events-none fixed z-30 h-[500px] w-[500px] rounded-full bg-radial from-accent-primary/5 via-accent-secondary/5 to-transparent blur-[80px]"
       style={{
         x: glowX,
         y: glowY,

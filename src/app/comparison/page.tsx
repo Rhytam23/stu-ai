@@ -251,11 +251,11 @@ export default function ComparisonPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-white/5 border-b border-white/10">
-                  <th className="text-left p-4 font-semibold text-text-muted text-xs uppercase tracking-wider w-32">
+                  <th className="text-left p-2.5 sm:p-4 font-semibold text-text-muted text-[10px] sm:text-xs uppercase tracking-wider w-24 sm:w-32">
                     Dimension
                   </th>
                   {tools.map((tool) => (
-                    <th key={tool.name} className="text-left p-4 font-semibold text-white text-xs">
+                    <th key={tool.name} className="text-left p-2.5 sm:p-4 font-semibold text-white text-[10px] sm:text-xs whitespace-nowrap">
                       <span className="mr-1">{tool.logo}</span>
                       {tool.name.split(" (")[0]}
                     </th>
@@ -268,9 +268,9 @@ export default function ComparisonPage() {
                     key={dim.key}
                     className={`border-b border-white/5 ${i % 2 === 0 ? "" : "bg-white/2"}`}
                   >
-                    <td className="p-4 text-xs text-text-muted font-semibold">{dim.label}</td>
+                    <td className="p-2.5 sm:p-4 text-[10px] sm:text-xs text-text-muted font-semibold">{dim.label}</td>
                     {tools.map((tool) => (
-                      <td key={tool.name} className="p-4 text-xs text-text-muted">
+                      <td key={tool.name} className="p-2.5 sm:p-4 text-[10px] sm:text-xs text-text-muted whitespace-nowrap sm:whitespace-normal">
                         {String(tool[dim.key as keyof Tool])}
                       </td>
                     ))}
