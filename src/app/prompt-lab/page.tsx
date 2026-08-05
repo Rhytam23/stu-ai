@@ -123,8 +123,21 @@ export default function PromptLabPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
       });
+      if (!res.ok) {
+        let errMsg = "Failed to analyze prompt.";
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            errMsg = errData.error || errMsg;
+          } else {
+            const text = await res.text();
+            errMsg = text || errMsg;
+          }
+        } catch { /* ignore */ }
+        throw new Error(errMsg);
+      }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to analyze prompt.");
       setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error.");

@@ -77,11 +77,21 @@ export default function ChatInterface({
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || "Failed to get response.");
+        let errMsg = "Failed to get response.";
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            errMsg = errData.error || errMsg;
+          } else {
+            const text = await res.text();
+            errMsg = text || errMsg;
+          }
+        } catch { /* ignore */ }
+        throw new Error(errMsg);
       }
+      const data = await res.json();
 
       const assistantMsg: Message = {
         id: crypto.randomUUID(),

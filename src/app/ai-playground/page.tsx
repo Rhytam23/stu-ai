@@ -366,8 +366,18 @@ export default function AIPlaygroundPage() {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to analyze.");
+        let errMsg = "Failed to analyze.";
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            errMsg = errData.error || errMsg;
+          } else {
+            const text = await res.text();
+            errMsg = text || errMsg;
+          }
+        } catch { /* ignore */ }
+        throw new Error(errMsg);
       }
 
       const reader = res.body!.getReader();
