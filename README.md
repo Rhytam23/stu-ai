@@ -159,3 +159,26 @@ ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 📖 Project Understanding (Future Reference)
+
+Synapse is a multi-provider AI learning portal for studying AI/ML concepts, prompt engineering
+and code-assistance techniques. It routes requests to Google Gemini, OpenAI, or Anthropic behind
+a common provider interface (with automatic model fallback on quota/availability errors), and
+wraps that in an educational site: playgrounds, a prompt lab, a coding-assistant comparison page,
+quizzes, and a history/foundations section for learning the underlying concepts, not just using
+the tools.
+
+**Stack:** Next.js + TypeScript, a pluggable AI provider layer (`src/lib/ai/providers/`), Vitest
+for unit tests, ESLint + Prettier, GitHub Actions CI (lint, typecheck, test, build).
+**Status:** actively maintained with real CI coverage.
+
+## 🎯 Where This Can Be Used
+
+- A learning resource/reference site for AI concepts and prompt engineering, usable as-is.
+- A reference implementation for a provider-agnostic AI backend with graceful model fallback —
+  reusable in any project that needs to survive one provider's outage or rate limit.
+- **Hackathons:** good fit as a base for any "AI education" or "AI tooling comparison" track, or
+  simply as a ready-made multi-provider AI backend to build a different frontend on top of.

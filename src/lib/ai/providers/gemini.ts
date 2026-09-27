@@ -23,14 +23,14 @@ export class GeminiProvider extends BaseProvider {
     fn: (modelName: string) => Promise<T>
   ): Promise<T> {
     const models = ["gemini-3.5-flash", "gemini-3.6-flash", "gemini-flash-latest"];
-    let lastError: any = null;
+    let lastError: unknown = null;
 
     for (const model of models) {
       try {
         return await fn(model);
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastError = err;
-        const msg = err?.message || String(err);
+        const msg = err instanceof Error ? err.message : String(err);
         console.warn(`[GeminiProvider] Failed with model '${model}', trying next... Error:`, msg);
         // Only fallback on network/quota/temp errors
         if (
